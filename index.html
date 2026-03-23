@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZeroLag — Cars24 HR Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#4736FE;--brand-dim:rgba(71,54,254,0.12);--brand-glow:rgba(71,54,254,0.25);
+  --bg:#07060f;--bg2:#0d0c1a;--bg3:#131228;
+  --s1:rgba(255,255,255,0.04);--s2:rgba(255,255,255,0.07);--s3:rgba(255,255,255,0.11);
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.13);--b3:rgba(255,255,255,0.22);
+  --t1:#eeeaff;--t2:rgba(238,234,255,0.6);--t3:rgba(238,234,255,0.3);--t4:rgba(238,234,255,0.15);
+  --green:#00e5a0;--amber:#ffb340;--red:#ff5c72;--blue:#5bc4ff;
+  --f:'Outfit',sans-serif;--fm:'DM Mono',monospace;--fh:'Syne',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);overflow:hidden}
+
+/* ── GRID DOTS BG ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background-image:radial-gradient(circle,rgba(71,54,254,0.15) 1px,transparent 1px);
+  background-size:32px 32px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%);
+  pointer-events:none;
+}
+
+#app{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden}
+
+/* ══ SIDEBAR ══ */
+.sb{
+  width:220px;flex-shrink:0;
+  background:rgba(13,12,26,0.95);
+  border-right:1px solid var(--b1);
+  display:flex;flex-direction:column;
+  padding:0 0 16px;
+  backdrop-filter:blur(20px);
+}
+.sb-logo{
+  padding:20px 18px 18px;
+  border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-mark{
+  width:32px;height:32px;border-radius:9px;
+  background:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:11px;font-weight:500;color:#fff;
+  box-shadow:0 0 20px var(--brand-glow);
+  flex-shrink:0;
+}
+.logo-text{font-family:var(--fh);font-size:14px;font-weight:600;letter-spacing:-0.02em}
+.logo-sub{font-size:10px;color:var(--t3);font-family:var(--fm);margin-top:1px}
+
+.sb-nav{padding:10px 8px;flex:1}
+.nb{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:8px;
+  font-size:13px;font-weight:500;color:var(--t2);
+  cursor:pointer;transition:all 0.15s;position:relative;
+  margin-bottom:1px;
+}
+.nb:hover{background:var(--s1);color:var(--t1)}
+.nb.on{background:var(--brand-dim);color:var(--brand);}
+.nb.on::before{
+  content:'';position:absolute;left:0;top:20%;bottom:20%;
+  width:2.5px;background:var(--brand);border-radius:0 2px 2px 0;
+}
+.nb svg{flex-shrink:0;opacity:0.7}
+.nb.on svg{opacity:1}
+.badge{
+  margin-left:auto;font-size:10px;font-family:var(--fm);
+  padding:1px 6px;border-radius:20px;
+  background:rgba(71,54,254,0.2);color:var(--brand);
+}
+
+.sb-status{
+  margin:0 10px;padding:10px 11px;
+  background:var(--s1);border:1px solid var(--b1);border-radius:9px;
+  font-size:11px;
+}
+.st-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.st-row:last-child{margin-bottom:0}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot.g{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s ease infinite}
+.dot.a{background:var(--amber)}
+.dot.r{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ══ MAIN ══ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+.topbar{
+  height:54px;flex-shrink:0;
+  display:flex;align-items:center;gap:12px;
+  padding:0 24px;
+  border-bottom:1px solid var(--b1);
+  background:rgba(7,6,15,0.8);
+  backdrop-filter:blur(20px);
+}
+.page-title{font-family:var(--fh);font-size:16px;font-weight:600;flex:1}
+.tb-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 13px;border-radius:7px;
+  border:1px solid var(--b1);background:var(--s1);
+  color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;
+  font-family:var(--f);transition:all 0.15s;
+}
+.tb-btn:hover{background:var(--s2);color:var(--t1);border-color:var(--b2)}
+.tb-btn.p{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 12px var(--brand-glow)}
+.tb-btn.p:hover{filter:brightness(1.1)}
+
+.content{flex:1;overflow-y:auto;padding:24px}
+.content::-webkit-scrollbar{width:3px}
+.content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ══ PAGES ══ */
+.page{display:none;animation:fadeUp .2s ease both}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ CARDS ══ */
+.card{
+  background:var(--bg2);border:1px solid var(--b1);
+  border-radius:14px;padding:20px;margin-bottom:16px;
+}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:var(--fh);font-size:14px;font-weight:600}
+.card-sub{font-size:11px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
+
+/* ══ FY + CATEGORY FILTERS ══ */
+.filter-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.fl{
+  padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1px solid var(--b1);background:transparent;color:var(--t2);
+  cursor:pointer;transition:all 0.15s;font-family:var(--f);
+}
+.fl:hover{border-color:var(--b2);color:var(--t1)}
+.fl.on{background:var(--brand-dim);border-color:var(--brand);color:var(--brand)}
+.fl-divider{width:1px;height:18px;background:var(--b1)}
+
+/* ══ FILE LIST ══ */
+.file-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 13px;border-radius:9px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  transition:background 0.12s;cursor:pointer;
+}
+.file-row:hover{background:var(--s1)}
+.file-row:hover .file-actions{opacity:1}
+.file-icon{
+  width:34px;height:34px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.file-info{flex:1;min-width:0}
+.file-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-meta{font-size:11px;color:var(--t3);font-family:var(--fm);margin-top:2px}
+.file-size{font-size:11px;color:var(--t3);font-family:var(--fm);flex-shrink:0;margin-right:10px}
+.file-date{font-size:11px;color:var(--t3);font-family:var(--fm);flex-shrink:0;text-align:right}
+.file-actions{display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
+.fa-btn{
+  width:26px;height:26px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--s2);border:1px solid var(--b1);
+  cursor:pointer;font-size:11px;transition:all 0.15s;
+}
+.fa-btn:hover{background:var(--s3)}
+
+.tag{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;font-family:var(--fm);
+}
+.tg{background:rgba(0,229,160,0.1);color:var(--green)}
+.ta{background:rgba(255,179,64,0.1);color:var(--amber)}
+.tr{background:rgba(255,92,114,0.1);color:var(--red)}
+.tb{background:rgba(71,54,254,0.12);color:var(--brand)}
+.tbl{background:rgba(91,196,255,0.1);color:var(--blue)}
+
+.empty{
+  text-align:center;padding:48px 24px;color:var(--t3);
+  font-size:13px;line-height:1.8;
+}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:0.4}
+
+/* ══ CONNECTING STATE ══ */
+.connecting{
+  text-align:center;padding:40px;
+}
+.spinner{
+  width:32px;height:32px;border:2px solid var(--b1);
+  border-top-color:var(--brand);border-radius:50%;
+  animation:spin 0.8s linear infinite;margin:0 auto 14px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ══ FORM ══ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl2{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.06em}
+.fi,.fs,.fta{
+  padding:9px 12px;background:var(--s1);
+  border:1px solid var(--b1);border-radius:8px;
+  color:var(--t1);font-family:var(--f);font-size:13px;
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;
+}
+.fi:focus,.fs:focus,.fta:focus{
+  border-color:rgba(71,54,254,0.5);
+  box-shadow:0 0 0 3px rgba(71,54,254,0.08);
+}
+.fi::placeholder,.fta::placeholder{color:var(--t4)}
+.fs{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
+.fs option{background:#0d0c1a}
+.fta{resize:vertical;min-height:72px}
+.hint{font-size:11px;color:var(--t3);line-height:1.5;margin-top:2px}
+.form-actions{display:flex;gap:8px;margin-top:18px}
+.btn{
+  padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:var(--f);transition:all 0.15s;border:1px solid var(--b2);
+  background:var(--s2);color:var(--t2);
+}
+.btn:hover{background:var(--s3);color:var(--t1)}
+.btn.primary{
+  background:var(--brand);border-color:var(--brand);color:#fff;
+  box-shadow:0 2px 14px var(--brand-glow);
+}
+.btn.primary:hover{filter:brightness(1.1)}
+
+/* ══ INFO BOX ══ */
+.ibox{
+  background:var(--brand-dim);border:1px solid rgba(71,54,254,0.2);
+  border-radius:9px;padding:12px 14px;
+  font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:16px;
+}
+.ibox strong{color:var(--brand)}
+.wbox{
+  background:rgba(255,179,64,0.06);border:1px solid rgba(255,179,64,0.2);
+  border-radius:9px;padding:12px 14px;
+  font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:16px;
+}
+.wbox strong{color:var(--amber)}
+.gbox{
+  background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);
+  border-radius:9px;padding:12px 14px;
+  font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:16px;
+}
+.gbox strong{color:var(--green)}
+
+/* ══ RULES TABLE ══ */
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{
+  text-align:left;padding:8px 12px;
+  font-size:10px;font-family:var(--fm);letter-spacing:0.07em;
+  color:var(--t3);text-transform:uppercase;
+  border-bottom:1px solid var(--b1);
+}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.025);transition:background 0.1s}
+tbody tr:hover{background:var(--s1)}
+tbody td{padding:10px 12px;color:var(--t2)}
+tbody td:first-child{color:var(--t1);font-weight:500}
+
+/* ══ TOAST ══ */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:var(--bg3);border:1px solid var(--b2);border-radius:10px;
+  padding:12px 16px;font-size:12px;display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  transform:translateY(16px);opacity:0;pointer-events:none;
+  transition:all 0.25s;max-width:320px;
+}
+#toast.show{transform:translateY(0);opacity:1;pointer-events:auto}
+.toast-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ══ UPLOAD ZONE ══ */
+.upload-zone{
+  border:2px dashed var(--b2);border-radius:12px;padding:28px;
+  text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:16px;
+}
+.upload-zone:hover,.upload-zone.drag{
+  border-color:var(--brand);background:var(--brand-dim);
+}
+.upload-zone-icon{font-size:28px;margin-bottom:8px;opacity:0.5}
+.upload-zone-text{font-size:13px;color:var(--t2);margin-bottom:4px}
+.upload-zone-sub{font-size:11px;color:var(--t3)}
+
+/* ══ SECTION HEADER ══ */
+.sec-hd{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+}
+.sec-title{font-family:var(--fh);font-size:15px;font-weight:600}
+.sec-sub{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ══ STAT PILLS ══ */
+.stats-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.stat{
+  background:var(--bg2);border:1px solid var(--b1);border-radius:10px;
+  padding:11px 16px;display:flex;align-items:center;gap:10px;
+}
+.stat-n{font-family:var(--fh);font-size:22px;font-weight:700;line-height:1}
+.stat-l{font-size:11px;color:var(--t3);margin-top:3px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sb">
+  <div class="sb-logo">
+    <div class="logo-mark">ZL</div>
+    <div>
+      <div class="logo-text">ZeroLag</div>
+      <div class="logo-sub">Real-time audits. No delays.</div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="nb on" onclick="nav('files',this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12V3l3-2h5l2 2v9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="1" y="5" width="12" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      Drive Reports
+      <span class="badge" id="sb-fc">—</span>
+    </div>
+    <div class="nb" onclick="nav('upload',this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 9V3M4 6l3-3 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Manual Upload
+    </div>
+    <div class="nb" onclick="nav('config',this)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 7h7M3.5 4.5h7M3.5 9.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Sync Rules
+      <span class="badge" id="sb-rc">—</span>
+    </div>
+  </div>
+
+  <div class="sb-status" id="sb-status">
+    <div class="st-row">
+      <div class="dot a" id="conn-dot"></div>
+      <span style="font-size:11px;color:var(--t2)" id="conn-txt">Connecting…</span>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-top:4px;font-family:var(--fm)" id="conn-fy">FY —</div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="pg-title">Drive Reports</div>
+    <button class="tb-btn" onclick="loadAll()" id="sync-btn">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Refresh
+    </button>
+  </div>
+  <div class="content">
+
+  <!-- ══ PAGE: DRIVE FILES ══ -->
+  <div class="page on" id="pg-files">
+    <div id="files-connect" class="connecting" style="display:none">
+      <div class="spinner"></div>
+      <div style="font-size:13px;color:var(--t2)">Loading from Drive…</div>
+    </div>
+
+    <div id="files-body">
+      <!-- Stats row -->
+      <div class="stats-row" id="stats-row"></div>
+
+      <!-- FY + Category filter -->
+      <div class="filter-bar" id="filter-bar">
+        <span style="font-size:11px;color:var(--t3);font-family:var(--fm)">FY</span>
+        <div id="fy-pills"></div>
+        <div class="fl-divider"></div>
+        <span style="font-size:11px;color:var(--t3);font-family:var(--fm)">Category</span>
+        <div id="cat-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+
+      <!-- File list -->
+      <div class="card" id="files-card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Report Store</div>
+            <div class="card-sub" id="files-sub">—</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="fi" id="search-input" placeholder="Search files…"
+              style="width:200px;padding:6px 11px;font-size:12px"
+              oninput="renderFiles()">
+          </div>
+        </div>
+        <div id="files-list">
+          <div class="connecting">
+            <div class="spinner"></div>
+            <div style="font-size:13px;color:var(--t2);margin-top:8px">Loading reports from Drive…</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:6px">Make sure Web App URL is configured below</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Web App URL config (shown if not set) -->
+      <div id="url-config" class="wbox" style="display:none">
+        <strong>Web App URL not configured.</strong> Paste your Apps Script Web App URL to connect Drive.
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input class="fi" id="wa-url" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;font-size:11px">
+          <button class="btn primary" onclick="saveUrl()">Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: MANUAL UPLOAD ══ -->
+  <div class="page" id="pg-upload">
+    <div class="ibox">
+      <strong>Manual uploads</strong> are for files you download from Darwinbox or other sources yourself.
+      Place the file in the correct Drive folder first, then log it here so it appears in the portal with full metadata.
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Log a manual upload</div>
+          <div class="card-sub">Saves metadata to Sheet → appears in Drive Reports</div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="fg">
+          <label class="fl2">Report name</label>
+          <input class="fi" id="u-name" placeholder="e.g. Leave Balance Report">
+        </div>
+        <div class="fg">
+          <label class="fl2">Category</label>
+          <select class="fs" id="u-cat">
+            <option value="01_Darwinbox">Darwinbox</option>
+            <option value="02_Medical">Medical</option>
+            <option value="03_Compliance">Compliance</option>
+            <option value="04_Approvals">Approvals</option>
+            <option value="05_Manual">Manual / Other</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl2">Sub folder</label>
+          <input class="fi" id="u-sub" placeholder="e.g. Leave_Reports">
+        </div>
+        <div class="fg">
+          <label class="fl2">Financial year</label>
+          <select class="fs" id="u-fy">
+            <option value="FY2025-26">FY 2025-26</option>
+            <option value="FY2026-27">FY 2026-27</option>
+            <option value="FY2024-25">FY 2024-25</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl2">Original filename</label>
+          <input class="fi" id="u-file" placeholder="e.g. LeaveBalance_March2026.csv">
+        </div>
+        <div class="fg">
+          <label class="fl2">File size</label>
+          <input class="fi" id="u-size" placeholder="e.g. 245 KB">
+        </div>
+        <div class="fg form-full">
+          <label class="fl2">Drive File ID <span style="color:var(--t3);font-weight:400;text-transform:none">(from Drive URL)</span></label>
+          <input class="fi" id="u-fid" placeholder="1abc123...xyz — from drive.google.com/file/d/THIS_PART/">
+          <span class="hint">Open the file in Drive → copy the ID from the URL</span>
+        </div>
+        <div class="fg form-full">
+          <label class="fl2">Notes</label>
+          <textarea class="fta" id="u-notes" placeholder="Any context — period covered, data cutoff, source etc."></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn primary" onclick="submitUpload()">Log upload</button>
+        <button class="btn" onclick="clearUploadForm()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE: SYNC RULES / CONFIG ══ -->
+  <div class="page" id="pg-config">
+
+    <!-- Add new rule form -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Configure new report</div>
+          <div class="card-sub">Schedule the report in Darwinbox first → get the email subject → add it here</div>
+        </div>
+      </div>
+
+      <div class="ibox">
+        <strong>How to get the subject line:</strong> Schedule the report in Darwinbox → wait for the email →
+        forward it to hraudit@cars24.com → apply Darwin label → copy the subject line exactly as it appears →
+        paste the unique keyword below (e.g. <strong>Leave_Balance_FY25</strong>).
+      </div>
+
+      <div class="form-grid">
+        <div class="fg">
+          <label class="fl2">Report name</label>
+          <input class="fi" id="r-name" placeholder="e.g. Leave Balance Report">
+        </div>
+        <div class="fg">
+          <label class="fl2">Sender email</label>
+          <input class="fi" id="r-sender" value="noreply@darwinbox.in">
+        </div>
+        <div class="fg form-full">
+          <label class="fl2">Subject keyword <span style="color:var(--t3);font-weight:400;text-transform:none">(unique part of the email subject)</span></label>
+          <input class="fi" id="r-subject" placeholder="e.g. Leave_Balance_FY25 or Employee_Baselive">
+          <span class="hint">The script checks if the email subject CONTAINS this keyword. Use the most unique part of the report name.</span>
+        </div>
+        <div class="fg">
+          <label class="fl2">Drive category folder</label>
+          <select class="fs" id="r-cat">
+            <option value="01_Darwinbox">01_Darwinbox</option>
+            <option value="02_Medical">02_Medical</option>
+            <option value="03_Compliance">03_Compliance</option>
+            <option value="04_Approvals">04_Approvals</option>
+            <option value="05_Manual">05_Manual</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label class="fl2">Sub folder name</label>
+          <input class="fi" id="r-sub" placeholder="e.g. Leave_Reports">
+        </div>
+        <div class="fg">
+          <label class="fl2">File prefix</label>
+          <input class="fi" id="r-prefix" placeholder="e.g. LeaveReport">
+          <span class="hint">Files will be saved as: LeaveReport_2026-03-23_093200.csv</span>
+        </div>
+        <div class="fg">
+          <label class="fl2">Frequency</label>
+          <select class="fs" id="r-freq">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="as_needed">As needed</option>
+          </select>
+        </div>
+        <div class="fg form-full">
+          <label class="fl2">Notes</label>
+          <input class="fi" id="r-notes" placeholder="Optional — any context about this report">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn primary" onclick="submitRule()">Add rule</button>
+        <button class="btn" onclick="clearRuleForm()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Existing rules table -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Active sync rules</div>
+          <div class="card-sub" id="rules-sub">Loaded from Apps Script</div>
+        </div>
+        <button class="tb-btn" onclick="loadRules()">↻ Refresh</button>
+      </div>
+      <div id="rules-table">
+        <div class="connecting"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div id="toast"><div class="toast-dot" id="tdot"></div><span id="tmsg"></span></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const LS = (k,d) => { try { const v=localStorage.getItem('ad_'+k); return v?JSON.parse(v):d; } catch { return d; }};
+const SS = (k,v) => { try { localStorage.setItem('ad_'+k,JSON.stringify(v)); } catch {} };
+
+let WEBAPP_URL = LS('webapp_url','');
+let ALL_FILES  = [];
+let ALL_RULES  = [];
+let activeFY   = LS('fy','FY2025-26');
+let activeCat  = 'all';
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+const TITLES = { files:'Drive Reports', upload:'Manual Upload', config:'Sync Rules' };
+
+function nav(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelectorAll('.nb').forEach(n => n.classList.remove('on'));
+  if (el) el.classList.add('on');
+  document.getElementById('pg-title').textContent = TITLES[id] || id;
+  if (id === 'config') loadRules();
+}
+
+// ══════════════════════════════════════════
+//  WEB APP URL
+// ══════════════════════════════════════════
+function saveUrl() {
+  const url = document.getElementById('wa-url').value.trim();
+  if (!url.includes('script.google.com')) { toast('Paste a valid Apps Script Web App URL','amber'); return; }
+  WEBAPP_URL = url; SS('webapp_url', url);
+  document.getElementById('url-config').style.display = 'none';
+  toast('Connected! Loading reports…','green');
+  loadAll();
+}
+
+// ══════════════════════════════════════════
+//  LOAD ALL DATA
+// ══════════════════════════════════════════
+async function loadAll() {
+  if (!WEBAPP_URL) {
+    document.getElementById('url-config').style.display = 'block';
+    document.getElementById('files-list').innerHTML = `<div class="empty"><div class="empty-icon">🔗</div>Paste your Apps Script Web App URL below to connect</div>`;
+    setConnStatus(false,'Not connected');
+    return;
+  }
+  setConnStatus(false,'Loading…');
+  document.getElementById('sync-btn').textContent = '↻ Loading…';
+  try {
+    await Promise.all([loadFiles(), loadStatus()]);
+    document.getElementById('sync-btn').innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh`;
+  } catch(e) {
+    setConnStatus(false,'Error: ' + e.message);
+    document.getElementById('sync-btn').innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh`;
+  }
+}
+
+async function loadFiles() {
+  try {
+    const res  = await fetch(WEBAPP_URL + '?action=files&fy=' + activeFY);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    ALL_FILES = data.files || [];
+    SS('files_' + activeFY, ALL_FILES);
+    buildFYPills(activeFY);
+    buildCatPills();
+    renderStats();
+    renderFiles();
+    setConnStatus(true, 'Synced · ' + ALL_FILES.length + ' files');
+    document.getElementById('sb-fc').textContent = ALL_FILES.length;
+  } catch(e) {
+    // Try cached
+    const cached = LS('files_' + activeFY, []);
+    if (cached.length) {
+      ALL_FILES = cached;
+      buildFYPills(activeFY);
+      buildCatPills();
+      renderStats();
+      renderFiles();
+      setConnStatus(false, 'Cached · ' + cached.length + ' files');
+    } else {
+      document.getElementById('files-list').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Could not load files.<br><span style="font-size:11px">Check your Web App URL is correct and deployed.</span></div>`;
+      setConnStatus(false, 'Failed to load');
+    }
+    throw e;
+  }
+}
+
+async function loadStatus() {
+  try {
+    const res  = await fetch(WEBAPP_URL + '?action=status');
+    const data = await res.json();
+    if (data.current_fy) {
+      document.getElementById('conn-fy').textContent = data.current_fy + ' · ' + (data.active_rules||0) + ' rules';
+    }
+  } catch(e) {}
+}
+
+async function loadRules() {
+  if (!WEBAPP_URL) { document.getElementById('rules-table').innerHTML = '<div class="empty">Connect Web App URL first</div>'; return; }
+  document.getElementById('rules-table').innerHTML = '<div class="connecting"><div class="spinner"></div></div>';
+  try {
+    const res  = await fetch(WEBAPP_URL + '?action=rules');
+    const data = await res.json();
+    ALL_RULES = data.rules || [];
+    document.getElementById('sb-rc').textContent = ALL_RULES.length;
+    renderRules();
+  } catch(e) {
+    document.getElementById('rules-table').innerHTML = '<div class="empty">Failed to load rules</div>';
+  }
+}
+
+// ══════════════════════════════════════════
+//  RENDER FILES
+// ══════════════════════════════════════════
+function buildFYPills(selected) {
+  const fys = ['FY2025-26','FY2026-27','FY2024-25'];
+  document.getElementById('fy-pills').innerHTML = fys.map(fy =>
+    `<span class="fl${fy===selected?' on':''}" onclick="switchFY('${fy}')">${fy}</span>`
+  ).join('');
+}
+
+function switchFY(fy) {
+  activeFY = fy; activeCat = 'all';
+  SS('fy', fy);
+  document.querySelectorAll('#fy-pills .fl').forEach(p => p.classList.remove('on'));
+  event.target.classList.add('on');
+  loadFiles();
+}
+
+function buildCatPills() {
+  const cats = ['all', ...new Set(ALL_FILES.map(f => f.category))].filter(Boolean);
+  document.getElementById('cat-pills').innerHTML = cats.map(c =>
+    `<span class="fl${c===activeCat?' on':''}" onclick="filterCat('${c}',this)">
+      ${c==='all'?'All':''+c.replace(/^\d+_/,'')}
+    </span>`
+  ).join('');
+}
+
+function filterCat(cat, el) {
+  activeCat = cat;
+  document.querySelectorAll('#cat-pills .fl').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderFiles();
+}
+
+function renderStats() {
+  const cats = {};
+  ALL_FILES.forEach(f => cats[f.category] = (cats[f.category]||0)+1);
+  const topCat = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('stats-row').innerHTML = [
+    { n: ALL_FILES.length, l: 'Total files' },
+    { n: Object.keys(cats).length, l: 'Categories' },
+    { n: topCat ? topCat[1] : 0, l: topCat ? topCat[0].replace(/^\d+_/,'') : 'Top category' },
+  ].map(s => `<div class="stat"><div><div class="stat-n">${s.n}</div><div class="stat-l">${s.l}</div></div></div>`).join('');
+}
+
+function renderFiles() {
+  const q   = (document.getElementById('search-input').value||'').toLowerCase();
+  let files = ALL_FILES.filter(f =>
+    (activeCat === 'all' || f.category === activeCat) &&
+    (!q || f.name.toLowerCase().includes(q) || (f.folder||'').toLowerCase().includes(q))
+  );
+
+  document.getElementById('files-sub').textContent =
+    files.length + ' files · ' + activeFY + (activeCat!=='all'?' · '+activeCat.replace(/^\d+_/,''):'');
+
+  const emo = {
+    '01_Darwinbox':'📊','02_Medical':'🏥','03_Compliance':'🔏',
+    '04_Approvals':'✅','05_Manual':'📁',
+  };
+  const bg = {
+    '01_Darwinbox':'rgba(71,54,254,0.12)','02_Medical':'rgba(0,229,160,0.1)',
+    '03_Compliance':'rgba(255,179,64,0.1)','04_Approvals':'rgba(91,196,255,0.1)',
+    '05_Manual':'rgba(255,255,255,0.06)',
+  };
+
+  if (!files.length) {
+    document.getElementById('files-list').innerHTML =
+      `<div class="empty"><div class="empty-icon">📂</div>${activeCat==='all'?'No files in Drive for '+activeFY:'No files in this category'}<br><span style="font-size:11px">Run RUN_SYNC_MANUALLY() in Apps Script to fetch reports</span></div>`;
+    return;
+  }
+
+  document.getElementById('files-list').innerHTML = files.map(f => `
+    <div class="file-row" onclick="window.open('${f.drive_url||'#'}','_blank')">
+      <div class="file-icon" style="background:${bg[f.category]||'var(--s2)'}">
+        ${emo[f.category]||'📄'}
+      </div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-meta">${f.folder||f.category}</div>
+      </div>
+      <div class="file-size">${f.size}</div>
+      <div class="file-date">
+        <div>${f.created||''}</div>
+      </div>
+      <span class="tag tg" style="flex-shrink:0;margin-left:8px">synced</span>
+      <div class="file-actions">
+        <div class="fa-btn" title="Open in Drive" onclick="event.stopPropagation();window.open('${f.drive_url||'#'}','_blank')">↗</div>
+        <a href="${f.download_url||'#'}" target="_blank" download="${f.name}" onclick="event.stopPropagation()">
+          <div class="fa-btn" title="Download">⬇</div>
+        </a>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  RENDER RULES
+// ══════════════════════════════════════════
+function renderRules() {
+  if (!ALL_RULES.length) {
+    document.getElementById('rules-table').innerHTML = '<div class="empty">No rules configured yet. Add one above.</div>';
+    document.getElementById('rules-sub').textContent = '0 rules';
+    return;
+  }
+  document.getElementById('rules-sub').textContent = ALL_RULES.length + ' rules · ' + ALL_RULES.filter(r=>String(r.is_active).toUpperCase()==='TRUE').length + ' active';
+  document.getElementById('rules-table').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Rule</th><th>Subject keyword</th><th>Folder</th><th>Frequency</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${ALL_RULES.map(r => `<tr>
+          <td>${r.rule_name||''}</td>
+          <td style="font-family:var(--fm);font-size:11px;color:var(--brand)">${r.subject_exact||''}</td>
+          <td style="font-size:11px;color:var(--t3)">${(r.category||'').replace(/^\d+_/,'')} / ${r.sub_folder||''}</td>
+          <td><span class="tag tb">${r.frequency||'daily'}</span></td>
+          <td><span class="tag ${String(r.is_active).toUpperCase()==='TRUE'?'tg':'ta'}">${String(r.is_active).toUpperCase()==='TRUE'?'active':'paused'}</span></td>
+          <td>
+            <button class="tb-btn" style="padding:3px 8px;font-size:10px"
+              onclick="toggleRule('${r.rule_id}',${String(r.is_active).toUpperCase()==='TRUE'})">
+              ${String(r.is_active).toUpperCase()==='TRUE'?'Pause':'Activate'}
+            </button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ══════════════════════════════════════════
+//  SUBMIT FORMS
+// ══════════════════════════════════════════
+async function submitUpload() {
+  const name = document.getElementById('u-name').value.trim();
+  const file = document.getElementById('u-file').value.trim();
+  if (!name || !file) { toast('Fill Report name and Filename','amber'); return; }
+  if (!WEBAPP_URL)    { toast('Connect Web App URL first','amber'); return; }
+
+  const body = {
+    action           : 'log_upload',
+    report_name      : name,
+    category         : document.getElementById('u-cat').value,
+    sub_folder       : document.getElementById('u-sub').value,
+    fy               : document.getElementById('u-fy').value,
+    original_filename: file,
+    drive_file_id    : document.getElementById('u-fid').value,
+    file_size        : document.getElementById('u-size').value,
+    notes            : document.getElementById('u-notes').value,
+    uploaded_by      : 'Vivek Naiwal',
+    uploader_email   : 'vivek.naiwal@cars24.com',
+  };
+
+  try {
+    const res  = await fetch(WEBAPP_URL, { method:'POST', body:JSON.stringify(body) });
+    const data = await res.json();
+    if (data.ok) {
+      toast('Upload logged — ' + data.upload_id,'green');
+      clearUploadForm();
+    } else {
+      toast('Error: ' + (data.error||'Unknown'),'red');
+    }
+  } catch(e) {
+    toast('Failed: ' + e.message,'red');
+  }
+}
+
+async function submitRule() {
+  const name    = document.getElementById('r-name').value.trim();
+  const subject = document.getElementById('r-subject').value.trim();
+  const sub     = document.getElementById('r-sub').value.trim();
+  const prefix  = document.getElementById('r-prefix').value.trim();
+
+  if (!name || !subject || !sub || !prefix) {
+    toast('Fill all required fields','amber'); return;
+  }
+  if (!WEBAPP_URL) { toast('Connect Web App URL first','amber'); return; }
+
+  const body = {
+    action        : 'add_rule',
+    rule_name     : name,
+    sender_email  : document.getElementById('r-sender').value,
+    subject_exact : subject,
+    category      : document.getElementById('r-cat').value,
+    sub_folder    : sub,
+    file_prefix   : prefix,
+    frequency     : document.getElementById('r-freq').value,
+    notes         : document.getElementById('r-notes').value,
+    created_by    : 'vivek.naiwal@cars24.com',
+  };
+
+  try {
+    const res  = await fetch(WEBAPP_URL, { method:'POST', body:JSON.stringify(body) });
+    const data = await res.json();
+    if (data.ok) {
+      toast('Rule added — ' + data.rule_id + '. Run sync to fetch.','green');
+      clearRuleForm();
+      loadRules();
+    } else {
+      toast('Error: ' + (data.error||'Unknown'),'red');
+    }
+  } catch(e) {
+    toast('Failed: ' + e.message,'red');
+  }
+}
+
+async function toggleRule(ruleId, currentlyActive) {
+  if (!WEBAPP_URL) return;
+  try {
+    const res  = await fetch(WEBAPP_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'toggle_rule', rule_id:ruleId, is_active:!currentlyActive })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      toast(data.rule_name + ' ' + (data.is_active?'activated':'paused'),'green');
+      loadRules();
+    }
+  } catch(e) { toast('Failed','red'); }
+}
+
+function clearUploadForm() {
+  ['u-name','u-sub','u-file','u-fid','u-size','u-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+function clearRuleForm() {
+  ['r-name','r-subject','r-sub','r-prefix','r-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('r-sender').value = 'noreply@darwinbox.in';
+}
+
+// ══════════════════════════════════════════
+//  STATUS + TOAST
+// ══════════════════════════════════════════
+function setConnStatus(ok, msg) {
+  document.getElementById('conn-dot').className = 'dot ' + (ok?'g':'a');
+  document.getElementById('conn-txt').textContent = msg;
+}
+
+let toastT;
+function toast(msg, type) {
+  const c = {green:'var(--green)',amber:'var(--amber)',red:'var(--red)',blue:'var(--blue)'};
+  document.getElementById('tdot').style.background = c[type]||c.blue;
+  document.getElementById('tmsg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  buildFYPills(activeFY);
+  if (!WEBAPP_URL) {
+    document.getElementById('url-config').style.display = 'block';
+    document.getElementById('files-list').innerHTML =
+      `<div class="empty"><div class="empty-icon">🔗</div>Paste your Apps Script Web App URL to connect Drive</div>`;
+    setConnStatus(false,'Not connected');
+  } else {
+    loadAll();
+  }
+});
+</script>
+</body>
+</html>
