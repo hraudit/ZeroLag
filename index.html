@@ -4,891 +4,963 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZeroLag — Cars24 HR Audit</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --brand:#4736FE;--brand-dim:rgba(71,54,254,0.12);--brand-glow:rgba(71,54,254,0.3);
-  --bg:#07060f;--bg2:#0d0c1a;--bg3:#131228;
-  --s1:rgba(255,255,255,0.04);--s2:rgba(255,255,255,0.07);--s3:rgba(255,255,255,0.12);
-  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.13);
-  --t1:#eeeaff;--t2:rgba(238,234,255,0.6);--t3:rgba(238,234,255,0.3);--t4:rgba(238,234,255,0.12);
-  --green:#00e5a0;--amber:#ffb340;--red:#ff5c72;--blue:#5bc4ff;
-  --f:'Outfit',sans-serif;--fm:'DM Mono',monospace;--fh:'Syne',sans-serif;
-  --sb:220px;
+  --brand:#4736FE;--bd:rgba(71,54,254,0.08);--bm:rgba(71,54,254,0.15);
+  --bg:#F4F5FF;--bg3:#FAFBFF;
+  --b1:rgba(71,54,254,0.08);--b2:rgba(71,54,254,0.14);
+  --t1:#0D0B2B;--t2:#4B4875;--t3:#9491B8;--t4:#C8C6E0;
+  --green:#00875F;--gd:rgba(0,135,95,0.1);
+  --amber:#C07000;--ad:rgba(192,112,0,0.1);
+  --red:#C0002A;--rd:rgba(192,0,42,0.1);
+  --f:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:12px;--r2:16px;
+  --sh:0 1px 3px rgba(13,11,43,0.06),0 4px 16px rgba(13,11,43,0.05);
+  --sh2:0 4px 24px rgba(13,11,43,0.09);
 }
-html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);overflow:hidden}
-body::before{content:'';position:fixed;inset:0;z-index:0;background-image:radial-gradient(circle,rgba(71,54,254,0.12) 1px,transparent 1px);background-size:32px 32px;mask-image:radial-gradient(ellipse 80% 50% at 50% 0%,black,transparent);pointer-events:none}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);overflow:hidden;font-size:14px}
 
-/* ── LAYOUT ── */
-#app{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden}
+/* ── CONFIG — PASTE YOUR SUPABASE KEYS HERE ── */
+/* See SETUP section in script below */
 
-/* ── SIDEBAR ── */
-.sb{width:var(--sb);flex-shrink:0;background:rgba(10,9,20,0.98);border-right:1px solid var(--b1);display:flex;flex-direction:column;backdrop-filter:blur(24px)}
-.sb-logo{padding:22px 18px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:11px}
-.lm{width:34px;height:34px;border-radius:10px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;font-weight:500;color:#fff;box-shadow:0 0 24px var(--brand-glow);flex-shrink:0}
-.lt{font-family:var(--fh);font-size:14px;font-weight:600;letter-spacing:-0.02em}
-.ls{font-size:10px;color:var(--t3);font-family:var(--fm);margin-top:1px}
-.sb-nav{padding:10px 8px;flex:1;overflow-y:auto}
-.sb-sec{font-size:9px;font-family:var(--fm);letter-spacing:0.12em;text-transform:uppercase;color:var(--t4);padding:12px 10px 5px}
-.nb{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all 0.15s;position:relative;margin-bottom:1px;user-select:none}
-.nb:hover{background:var(--s1);color:var(--t1)}
-.nb.on{background:var(--brand-dim);color:var(--brand)}
-.nb.on::before{content:'';position:absolute;left:0;top:18%;bottom:18%;width:2.5px;background:var(--brand);border-radius:0 2px 2px 0}
-.nb svg{flex-shrink:0;opacity:0.65}
-.nb.on svg,.nb:hover svg{opacity:1}
-.nb-badge{margin-left:auto;font-size:10px;font-family:var(--fm);padding:1px 6px;border-radius:20px;background:var(--brand-dim);color:var(--brand)}
-.nb-badge.warn{background:rgba(255,179,64,0.15);color:var(--amber)}
-.nb-badge.red{background:rgba(255,92,114,0.15);color:var(--red)}
+/* LAYOUT */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sb{width:220px;flex-shrink:0;background:var(--brand);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.sb::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.05) 1px,transparent 1px);background-size:24px 24px;pointer-events:none}
+.sbl{position:relative;z-index:1;padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:9px}
+.zlm{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.zlm svg{width:16px;height:16px}
+.sbn{font-size:14px;font-weight:700;color:#fff}
+.fypill{position:relative;z-index:1;margin:8px 10px 4px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:7px 10px;cursor:pointer;transition:background 0.15s}
+.fypill:hover{background:rgba(255,255,255,0.15)}
+.fyl{font-size:9px;font-family:var(--fm);color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em}
+.fyv{font-size:13px;font-weight:700;color:#fff;margin-top:1px}
+.sbnav{position:relative;z-index:1;flex:1;padding:4px 8px;overflow-y:auto}
+.sbnav::-webkit-scrollbar{display:none}
+.ns{font-size:9px;font-family:var(--fm);color:rgba(255,255,255,0.35);letter-spacing:0.12em;text-transform:uppercase;padding:10px 8px 3px}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.15s;margin-bottom:1px;position:relative;user-select:none}
+.ni:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.9)}
+.ni.on{background:rgba(255,255,255,0.16);color:#fff;font-weight:600}
+.ni.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:#fff;border-radius:0 2px 2px 0}
+.ni svg{flex-shrink:0;opacity:0.65}
+.ni.on svg,.ni:hover svg{opacity:1}
+.nbadge{margin-left:auto;font-size:10px;font-family:var(--fm);padding:1px 7px;border-radius:20px;font-weight:600;background:rgba(255,255,255,0.15);color:#fff}
+.nbadge.amber{background:rgba(255,180,0,0.25);color:#ffd070}
+.sbu{position:relative;z-index:1;padding:10px 12px;border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:9px}
+.uav{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
 
-.sb-footer{padding:12px;border-top:1px solid var(--b1)}
-.health-card{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:10px 12px}
-.hc-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.hc-row:last-child{margin-bottom:0}
-.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:background 0.3s}
-.dot.g{background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2.5s ease infinite}
-.dot.a{background:var(--amber)}
-.dot.r{background:var(--red);animation:blink 1s ease infinite}
-.dot.x{background:var(--t3)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.hc-txt{font-size:11px;color:var(--t2)}
-.hc-sub{font-size:10px;color:var(--t3);font-family:var(--fm);margin-top:2px}
-
-/* ── MAIN ── */
+/* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{height:52px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 22px;border-bottom:1px solid var(--b1);background:rgba(7,6,15,0.85);backdrop-filter:blur(20px)}
-.page-title{font-family:var(--fh);font-size:15px;font-weight:600;flex:1}
-.tb-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid var(--b1);background:var(--s1);color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--f);transition:all 0.15s}
-.tb-pill:hover{background:var(--s2);color:var(--t1);border-color:var(--b2)}
-.tb-pill.p{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 12px var(--brand-glow)}
-.tb-pill.p:hover{filter:brightness(1.1)}
-
-/* ── COOKIE WARNING BANNER ── */
-#cookie-banner{display:none;padding:8px 22px;background:rgba(255,179,64,0.08);border-bottom:1px solid rgba(255,179,64,0.2);font-size:12px;color:var(--amber);align-items:center;gap:8px}
-#cookie-banner.show{display:flex}
-#cookie-banner.urgent{background:rgba(255,92,114,0.08);border-color:rgba(255,92,114,0.2);color:var(--red)}
-
-.content{flex:1;overflow-y:auto;padding:22px}
-.content::-webkit-scrollbar{width:3px}
+.topbar{height:54px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 22px;gap:10px}
+.tbt{font-size:15px;font-weight:700;color:var(--t1);flex:1;letter-spacing:-0.01em}
+.tbfy{font-size:12px;color:var(--t3);font-weight:400;margin-left:6px}
+.content{flex:1;overflow-y:auto;padding:20px 22px}
+.content::-webkit-scrollbar{width:4px}
 .content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.page{display:none}
+.page.on{display:block;animation:fu .2s ease both}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── PAGES ── */
-.page{display:none;animation:fu .18s ease both}
-.page.on{display:block}
-@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── CARDS ── */
-.card{background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:20px;margin-bottom:14px}
-.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px}
-.ct{font-family:var(--fh);font-size:13px;font-weight:600}
+/* COMPONENTS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid var(--b2);background:#fff;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--f);transition:all 0.15s}
+.btn:hover{background:var(--bd);color:var(--brand);border-color:var(--b2)}
+.btn.p{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 10px rgba(71,54,254,0.25)}
+.btn.p:hover{background:#3829d4}
+.card{background:#fff;border:1px solid var(--b1);border-radius:var(--r2);box-shadow:var(--sh);margin-bottom:14px}
+.ch{padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13px;font-weight:700;color:var(--t1)}
 .cs{font-size:11px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
-
-/* ── STATS ── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.stat{background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:14px 16px}
-.stat-n{font-family:var(--fh);font-size:26px;font-weight:700;line-height:1;letter-spacing:-0.02em}
-.stat-l{font-size:11px;color:var(--t3);margin-top:4px}
-.stat-d{font-size:10px;font-family:var(--fm);margin-top:6px;padding:2px 7px;border-radius:20px;display:inline-flex}
-
-/* ── FILTERS ── */
-.filter-row{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-.fp{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--b1);background:transparent;color:var(--t2);cursor:pointer;transition:all 0.15s;font-family:var(--f)}
-.fp:hover{border-color:var(--b2);color:var(--t1)}
-.fp.on{background:var(--brand-dim);border-color:var(--brand);color:var(--brand)}
-.f-sep{width:1px;height:16px;background:var(--b1);flex-shrink:0}
-.f-label{font-size:10px;font-family:var(--fm);color:var(--t3);letter-spacing:0.08em;text-transform:uppercase}
-
-/* ── FILE ROWS ── */
-.fr{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;border-bottom:1px solid rgba(255,255,255,0.025);transition:background 0.1s;cursor:pointer}
-.fr:hover{background:var(--s1)}
-.fr:hover .fa{opacity:1}
-.fi{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.fn{flex:1;min-width:0}
-.fn-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fn-meta{font-size:11px;color:var(--t3);font-family:var(--fm);margin-top:1px}
-.fsize{font-size:11px;color:var(--t3);font-family:var(--fm);flex-shrink:0;margin-right:6px}
-.fdate{font-size:11px;color:var(--t3);font-family:var(--fm);flex-shrink:0;text-align:right;min-width:110px}
-.fa{display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
-.fa-btn{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--s2);border:1px solid var(--b1);cursor:pointer;font-size:11px;transition:background 0.1s}
-.fa-btn:hover{background:var(--s3)}
-.tag{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;font-family:var(--fm)}
-.tg{background:rgba(0,229,160,0.1);color:var(--green)}
-.ta{background:rgba(255,179,64,0.1);color:var(--amber)}
-.tr2{background:rgba(255,92,114,0.1);color:var(--red)}
-.tb{background:rgba(71,54,254,0.12);color:var(--brand)}
-.tbl{background:rgba(91,196,255,0.1);color:var(--blue)}
-
-/* ── EMPTY / LOADING ── */
-.empty{text-align:center;padding:44px;color:var(--t3);font-size:13px;line-height:1.8}
-.ei{font-size:30px;margin-bottom:12px;opacity:0.35}
-.spin-wrap{text-align:center;padding:36px}
-.spin{width:28px;height:28px;border:2px solid var(--b1);border-top-color:var(--brand);border-radius:50%;animation:rot 0.75s linear infinite;margin:0 auto 12px}
+.cb{padding:14px 16px}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--fm)}
+.tg{background:var(--gd);color:var(--green)}
+.ta{background:var(--ad);color:var(--amber)}
+.tr{background:var(--rd);color:var(--red)}
+.tb{background:var(--bd);color:var(--brand)}
+.alert{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:var(--r);font-size:12px;font-weight:500;margin-bottom:14px}
+.alert.red{background:#FFF1F3;border:1px solid #FFD0D6;color:var(--red)}
+.alert.amber{background:#FFFBF0;border:1px solid #FFE4A0;color:var(--amber)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--b1);border-radius:var(--r2);padding:16px;box-shadow:var(--sh);cursor:pointer;transition:all 0.2s}
+.stat:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.stat-n{font-size:28px;font-weight:800;color:var(--t1);letter-spacing:-0.03em;line-height:1;margin-bottom:3px}
+.stat-l{font-size:12px;color:var(--t3);font-weight:500}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(71,54,254,0.05)}
+.row:last-child{border-bottom:none}
+.hdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hdot.g{background:#00C48C;box-shadow:0 0 0 3px rgba(0,196,140,0.2);animation:blink 2s ease infinite}
+.hdot.a{background:#F5A623}
+.hdot.r{background:#FF4444;animation:blink 1s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.35}}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl thead th{text-align:left;padding:8px 14px;font-size:10px;font-family:var(--fm);letter-spacing:0.08em;color:var(--t3);text-transform:uppercase;background:var(--bg3);border-bottom:1px solid var(--b1);white-space:nowrap}
+.tbl tbody tr{border-bottom:1px solid rgba(71,54,254,0.04);transition:background 0.1s}
+.tbl tbody tr:last-child{border-bottom:none}
+.tbl tbody tr:hover{background:var(--bg3)}
+.tbl td{padding:10px 14px;color:var(--t2);vertical-align:middle}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em}
+.fi{padding:8px 11px;background:var(--bg3);border:1.5px solid var(--b1);border-radius:9px;font-family:var(--f);font-size:13px;color:var(--t1);outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%}
+.fi:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(71,54,254,0.07);background:#fff}
+.fi:disabled{opacity:0.5;cursor:not-allowed}
+select.fi{cursor:pointer}
+textarea.fi{resize:vertical;line-height:1.6}
+code{background:var(--bd);color:var(--brand);padding:1px 5px;border-radius:4px;font-family:var(--fm);font-size:11px}
+.overlay{position:fixed;inset:0;z-index:98;background:rgba(13,11,43,0.4);display:none;backdrop-filter:blur(3px)}
+.overlay.open{display:block}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-48%);z-index:99;width:540px;background:#fff;border-radius:var(--r2);box-shadow:0 24px 64px rgba(13,11,43,0.18);display:none;flex-direction:column;max-height:90vh}
+.modal.open{display:flex;transform:translate(-50%,-50%);animation:mpop .2s cubic-bezier(.16,1,.3,1) both}
+@keyframes mpop{from{opacity:0;transform:translate(-50%,-48%)}to{opacity:1;transform:translate(-50%,-50%)}}
+.mhead{padding:18px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mtitle{font-size:15px;font-weight:700;color:var(--t1)}
+.mbody{padding:18px 20px;overflow-y:auto}
+.mfoot{padding:14px 20px;border-top:1px solid var(--b1);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.drawer{position:fixed;right:0;top:0;bottom:0;z-index:99;width:500px;background:#fff;border-left:1px solid var(--b1);box-shadow:-8px 0 40px rgba(13,11,43,0.1);transform:translateX(100%);transition:transform 0.28s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.dhead{padding:18px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;gap:12px;flex-shrink:0}
+.dtitle{font-size:14px;font-weight:700;color:var(--t1);line-height:1.4}
+.dmeta{font-size:11px;color:var(--t3);font-family:var(--fm);margin-top:4px}
+.dbody{flex:1;overflow-y:auto;padding:18px 20px}
+.dfoot{padding:13px 18px;border-top:1px solid var(--b1);display:flex;gap:8px;background:#fff;flex-shrink:0}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.tsl{position:absolute;inset:0;background:var(--t4);border-radius:20px;cursor:pointer;transition:background 0.2s}
+.tsl::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform 0.2s}
+.toggle input:checked+.tsl{background:var(--green)}
+.toggle input:checked+.tsl::before{transform:translateX(16px)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(71,54,254,0.2);border-top-color:var(--brand);border-radius:50%;animation:rot 0.7s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
+.lp{display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:12px;color:var(--t3)}
+.es{text-align:center;padding:48px 20px;color:var(--t3)}
 
-/* ── FORMS ── */
-.fg2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.ff{display:flex;flex-direction:column;gap:5px}
-.ff.span2{grid-column:1/-1}
-.fl{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.06em}
-.fi2,.fs,.fta{width:100%;padding:9px 12px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;color:var(--t1);font-family:var(--f);font-size:13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
-.fi2:focus,.fs:focus,.fta:focus{border-color:rgba(71,54,254,0.5);box-shadow:0 0 0 3px rgba(71,54,254,0.08)}
-.fi2::placeholder,.fta::placeholder{color:var(--t4)}
-.fs{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
-.fs option{background:#0d0c1a}
-.fta{resize:vertical;min-height:68px}
-.fhint{font-size:11px;color:var(--t3);line-height:1.5;margin-top:2px}
-.fa-row{display:flex;gap:8px;margin-top:16px}
-.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--f);transition:all 0.15s;border:1px solid var(--b2);background:var(--s2);color:var(--t2)}
-.btn:hover{background:var(--s3);color:var(--t1)}
-.btn.p{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 12px var(--brand-glow)}
-.btn.p:hover{filter:brightness(1.1)}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;z-index:500;background:var(--brand);display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:20px;padding:36px;width:400px;box-shadow:0 24px 64px rgba(13,11,43,0.3);animation:mpop .3s cubic-bezier(.16,1,.3,1) both}
+.login-logo{width:48px;height:48px;border-radius:14px;background:var(--brand);display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 16px rgba(71,54,254,0.4)}
+.login-logo svg{width:26px;height:26px}
 
-/* ── INFO BOXES ── */
-.ibox{background:var(--brand-dim);border:1px solid rgba(71,54,254,0.2);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px}
-.ibox b{color:var(--brand)}
-.wbox{background:rgba(255,179,64,0.06);border:1px solid rgba(255,179,64,0.2);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px}
-.wbox b{color:var(--amber)}
-.gbox{background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px}
-.gbox b{color:var(--green)}
-.rbox{background:rgba(255,92,114,0.06);border:1px solid rgba(255,92,114,0.2);border-radius:9px;padding:12px 14px;font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px}
-.rbox b{color:var(--red)}
-
-/* ── TABLE ── */
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{text-align:left;padding:7px 11px;font-size:10px;font-family:var(--fm);letter-spacing:0.07em;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--b1)}
-tbody tr{border-bottom:1px solid rgba(255,255,255,0.02);transition:background 0.1s}
-tbody tr:hover{background:var(--s1)}
-tbody td{padding:9px 11px;color:var(--t2)}
-tbody td:first-child{color:var(--t1);font-weight:500}
-
-/* ── SETUP PAGE ── */
-.setup-step{background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:16px;margin-bottom:10px}
-.step-head{display:flex;align-items:center;gap:11px;margin-bottom:11px}
-.step-n{width:28px;height:28px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;font-family:var(--fm);flex-shrink:0;color:#fff}
-.step-n.done{background:var(--green)}
-.step-title{font-size:13px;font-weight:600}
-.step-sub{font-size:11px;color:var(--t3);margin-top:1px}
-code{background:rgba(71,54,254,0.12);color:var(--brand);padding:1px 5px;border-radius:4px;font-family:var(--fm);font-size:11px}
-
-/* ── TOAST ── */
-#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:var(--bg3);border:1px solid var(--b2);border-radius:10px;padding:11px 15px;font-size:12px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 30px rgba(0,0,0,0.5);transform:translateY(14px);opacity:0;pointer-events:none;transition:all 0.22s;max-width:320px}
-#toast.show{transform:translateY(0);opacity:1;pointer-events:auto}
-.td{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-/* ── SETUP URL MODAL ── */
-#setup-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
-#setup-modal.open{opacity:1;pointer-events:auto}
-.modal-box{background:#0f0d1e;border:1px solid var(--b2);border-radius:18px;padding:28px;width:100%;max-width:500px;transform:scale(0.95);transition:transform 0.2s}
-#setup-modal.open .modal-box{transform:scale(1)}
-.modal-title{font-family:var(--fh);font-size:17px;font-weight:600;margin-bottom:6px}
-.modal-sub{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:18px}
+/* FY MODAL */
+.fyo{position:fixed;inset:0;z-index:300;background:rgba(13,11,43,0.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center}
+.fyo.open{display:flex}
+.fym{background:#fff;border-radius:20px;padding:28px;width:400px;box-shadow:0 24px 64px rgba(13,11,43,0.2);animation:mpop .2s cubic-bezier(.16,1,.3,1) both}
+.fyopt{padding:12px 10px;border-radius:10px;border:2px solid var(--b1);text-align:center;cursor:pointer;transition:all 0.15s;margin-bottom:8px}
+.fyopt:hover,.fyopt.sel{border-color:var(--brand);background:var(--bd)}
 </style>
 </head>
 <body>
 
-<!-- SETUP MODAL — shown on first visit -->
-<div id="setup-modal">
-  <div class="modal-box">
-    <div class="modal-title">Connect ZeroLag to Drive</div>
-    <div class="modal-sub">
-      Paste your Apps Script Web App URL to connect the portal to your Google Drive data.
-      This is stored in your browser and only needs to be done once.
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 26 26" fill="none"><path d="M5 9h16L5 17h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <div class="ff" style="margin-bottom:14px">
-      <label class="fl">Web App URL</label>
-      <input class="fi2" id="modal-url" placeholder="https://script.google.com/a/macros/cars24.com/s/.../exec" autocomplete="off">
+    <div style="font-size:24px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;margin-bottom:6px">Welcome back</div>
+    <div style="font-size:13px;color:var(--t3);margin-bottom:28px">Enter your Cars24 email to access the HR Audit Portal</div>
+    <div class="fg">
+      <label class="fl">Work email</label>
+      <div style="position:relative">
+        <svg width="16" height="16" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="#9491B8" stroke-width="1.3"/><path d="M2 4.5l6 5 6-5" stroke="#9491B8" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <input class="fi" id="login-email" type="email" placeholder="yourname@cars24.com" autocomplete="email" oninput="loginCheck(this)" style="padding-left:38px">
+      </div>
+      <div style="font-size:11px;color:var(--t4);font-family:var(--fm);margin-top:4px">Only @cars24.com addresses are allowed</div>
     </div>
-    <div class="fa-row">
-      <button class="btn p" onclick="saveWebAppUrl()">Connect →</button>
-    </div>
-    <div style="font-size:11px;color:var(--t3);margin-top:12px;line-height:1.6">
-      Find this in Apps Script → Deploy → Manage deployments → copy the URL
+    <div id="login-err" style="display:none;background:#FFF1F3;border:1px solid #FFD0D6;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--red);margin-bottom:12px"></div>
+    <button class="btn p" id="login-btn" disabled onclick="doLogin()" style="width:100%;justify-content:center;padding:13px;font-size:14px">
+      <span id="login-txt">Sign in</span>
+      <div class="spin" id="login-spin" style="display:none"></div>
+      <svg id="login-arrow" width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M3 7.5h9M8.5 4l4 3.5-4 3.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div style="margin-top:16px;padding:11px 13px;background:#F5F4FF;border-radius:9px;font-size:12px;color:#6B68A0;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4736FE" stroke-width="1.2"/><path d="M7 4.5v4" stroke="#4736FE" stroke-width="1.3" stroke-linecap="round"/></svg>
+      No access? Reach out to <strong style="color:var(--brand);margin-left:4px">People Ops</strong>
     </div>
   </div>
 </div>
 
-<div id="app">
+<!-- FY SELECTOR -->
+<div class="fyo" id="fyo">
+  <div class="fym">
+    <div style="font-size:18px;font-weight:800;color:var(--t1);margin-bottom:5px">Select financial year</div>
+    <div style="font-size:13px;color:var(--t3);margin-bottom:18px">Choose the FY to work with. Switch anytime from sidebar.</div>
+    <div class="fyopt" onclick="selFY(this,'FY2024-25')"><div style="font-size:14px;font-weight:700;color:var(--t1)">FY 2024-25</div><div style="font-size:10px;color:var(--t3);font-family:var(--fm)">Apr 2024 – Mar 2025</div></div>
+    <div class="fyopt sel" id="fy-default" onclick="selFY(this,'FY2025-26')"><div style="font-size:14px;font-weight:700;color:var(--t1)">FY 2025-26</div><div style="font-size:10px;color:var(--t3);font-family:var(--fm)">Apr 2025 – Mar 2026 ● current</div></div>
+    <div class="fyopt" onclick="selFY(this,'FY2026-27')"><div style="font-size:14px;font-weight:700;color:var(--t1)">FY 2026-27</div><div style="font-size:10px;color:var(--t3);font-family:var(--fm)">Apr 2026 – Mar 2027</div></div>
+    <button onclick="confirmFY()" style="width:100%;margin-top:14px;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-family:var(--f);font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(71,54,254,0.3)">Enter portal →</button>
+  </div>
+</div>
 
-<!-- SIDEBAR -->
+<!-- PORTAL -->
+<div class="shell">
 <nav class="sb">
-  <div class="sb-logo">
-    <div class="lm">ZL</div>
-    <div>
-      <div class="lt">ZeroLag</div>
-      <div class="ls">Real-time audits. No delays.</div>
-    </div>
+  <div class="sbl">
+    <div class="zlm"><svg viewBox="0 0 22 22" fill="none"><path d="M4.5 7h13L4.5 15h13" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><div class="sbn">ZeroLag</div><div style="font-size:9px;color:rgba(255,255,255,0.45);font-family:var(--fm)">Cars24 P&amp;C</div></div>
   </div>
-
-  <div class="sb-nav">
-    <div class="sb-sec">Reports</div>
-    <div class="nb on" onclick="nav('reports',this)" id="nb-reports">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12V3l3-2h5l2 2v9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="1" y="5" width="12" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
-      Drive Reports
-      <span class="nb-badge" id="sb-fc">—</span>
-    </div>
-    <div class="nb" onclick="nav('upload',this)">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 9V3M4 6l3-3 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Manual Upload
-    </div>
-
-    <div class="sb-sec">Admin</div>
-    <div class="nb" onclick="nav('rules',this)">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 7h7M3.5 4.5h7M3.5 9.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Sync Rules
-      <span class="nb-badge" id="sb-rc">—</span>
-    </div>
-    <div class="nb" onclick="nav('log',this)">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M1 3.5h12M1 10.5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Sync Log
-    </div>
-    <div class="nb" onclick="nav('setup',this)">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.6 2.6l1.07 1.07M10.33 10.33l1.07 1.07M2.6 11.4l1.07-1.07M10.33 3.67l1.07-1.07" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Settings
-    </div>
+  <div class="fypill" onclick="document.getElementById('fyo').classList.add('open')">
+    <div class="fyl">Financial Year</div>
+    <div class="fyv" id="fy-disp">FY 2025-26</div>
   </div>
-
-  <div class="sb-footer">
-    <div class="health-card" id="health-card">
-      <div class="hc-row">
-        <div class="dot x" id="hc-dot"></div>
-        <span class="hc-txt" id="hc-txt">Connecting…</span>
-      </div>
-      <div class="hc-sub" id="hc-sub">—</div>
+  <div class="sbnav">
+    <div class="ns">Main</div>
+    <div class="ni on" id="nb-dashboard" onclick="nav('dashboard',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="7.5" y="1" width="5.5" height="5.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="7.5" width="5.5" height="5.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>Dashboard</div>
+    <div class="ni" id="nb-reports" onclick="nav('reports',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 1.5h6l3 3V13H2.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8.5 1.5v3h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Reports<span class="nbadge" id="nb-rc" style="display:none">0</span></div>
+    <div class="ni" id="nb-approvals" onclick="nav('approvals',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 3h11v8.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 3l5.5 5 5.5-5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Approval Emails<span class="nbadge" id="nb-ac" style="display:none">0</span></div>
+    <div class="ni" id="nb-upload" onclick="nav('upload',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 9.5V3M4.5 5.5L7 3l2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Document Upload</div>
+    <div class="ns">Admin</div>
+    <div class="ni" id="nb-rules" onclick="nav('rules',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Sync Rules</div>
+    <div class="ni" id="nb-synclog" onclick="nav('synclog',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 4h11M1.5 7.5h11M1.5 11h6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Sync Log</div>
+    <div class="ni" id="nb-obs" onclick="nav('obs',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M7 5v3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10.5" r="0.7" fill="currentColor"/></svg>Observations<span class="nbadge amber" id="nb-oc" style="display:none">0</span></div>
+    <div class="ni" id="nb-audit" onclick="nav('audit',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5h7M3.5 7.5h7M3.5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Audit Log</div>
+    <div class="ni" id="nb-users" onclick="nav('users',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 12.5c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 3.5v3M8.5 5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>User Management</div>
+    <div class="ni" id="nb-settings" onclick="nav('settings',this)"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5.5 2h3l.5 1.5a4 4 0 0 1 1.1.65l1.5-.5 1.5 2.5-1.2 1.1a4 4 0 0 1 0 1.5l1.2 1.1-1.5 2.5-1.5-.5A4 4 0 0 1 9 12l-.5 1.5h-3L5 12a4 4 0 0 1-1.1-.65l-1.5.5-1.5-2.5 1.2-1.1a4 4 0 0 1 0-1.5L.9 6.35l1.5-2.5 1.5.5A4 4 0 0 1 5 3L5.5 2z" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.75" stroke="currentColor" stroke-width="1.2"/></svg>Settings</div>
+  </div>
+  <div class="sbu">
+    <div class="uav" id="uav">VN</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:12px;font-weight:600;color:#fff" id="uname">Vivek Naiwal</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--fm)" id="urole">Admin · P&C</div>
     </div>
   </div>
 </nav>
 
-<!-- MAIN -->
 <div class="main">
-
-  <!-- Cookie warning banner -->
-  <div id="cookie-banner">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="10" r="0.7" fill="currentColor"/></svg>
-    <span id="cookie-banner-txt"></span>
-    <button class="tb-pill" style="margin-left:auto;font-size:11px" onclick="nav('setup',document.querySelector('.nb:last-of-type'))">How to fix →</button>
-  </div>
-
   <div class="topbar">
-    <div class="page-title" id="pg-title">Drive Reports</div>
-    <button class="tb-pill" onclick="loadAll()" id="refresh-btn">
-      <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Refresh
+    <div class="tbt" id="tbt">Dashboard <span class="tbfy" id="tbfy">FY 2025-26</span></div>
+    <button class="btn p" onclick="nav('upload',document.getElementById('nb-upload'))">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8.5V2M3.5 4.5L6 2l2.5 2.5" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5 10h9" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>Upload
     </button>
   </div>
-
   <div class="content">
-
-  <!-- ── REPORTS PAGE ── -->
-  <div class="page on" id="pg-reports">
-    <div class="stats" id="stats-row"></div>
-
-    <div class="filter-row">
-      <span class="f-label">FY</span>
-      <div id="fy-pills" style="display:flex;gap:6px"></div>
-      <div class="f-sep"></div>
-      <span class="f-label">Category</span>
-      <div id="cat-pills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-    </div>
-
-    <div class="card">
-      <div class="ch">
-        <div>
-          <div class="ct">Report Store</div>
-          <div class="cs" id="files-sub">—</div>
-        </div>
-        <input class="fi2" id="search" placeholder="Search files…" style="width:190px;padding:6px 11px;font-size:12px" oninput="renderFiles()">
-      </div>
-      <div id="files-list"><div class="spin-wrap"><div class="spin"></div><div style="font-size:13px;color:var(--t2)">Loading from Drive…</div></div></div>
-    </div>
+    <div class="page on" id="pg-dashboard"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-reports"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-approvals"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-upload"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-rules"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-synclog"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-obs"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-audit"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-users"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
+    <div class="page" id="pg-settings"><div class="lp"><div class="spin"></div><span>Loading…</span></div></div>
   </div>
+</div>
+</div>
 
-  <!-- ── UPLOAD PAGE ── -->
-  <div class="page" id="pg-upload">
-    <div class="ibox"><b>Manual upload</b> — download the file from Darwinbox yourself, place it in the correct Drive folder, then log it here with metadata so it appears in the portal.</div>
-    <div class="card">
-      <div class="ch"><div><div class="ct">Log a manual upload</div><div class="cs">Saves metadata to Sheet → appears in Drive Reports</div></div></div>
-      <div class="fg2">
-        <div class="ff"><label class="fl">Report name</label><input class="fi2" id="u-name" placeholder="e.g. Leave Balance March 2026"></div>
-        <div class="ff"><label class="fl">Category</label>
-          <select class="fs" id="u-cat">
-            <option value="01_Darwinbox">01 — Darwinbox</option>
-            <option value="02_Medical">02 — Medical</option>
-            <option value="03_Compliance">03 — Compliance</option>
-            <option value="04_Approvals">04 — Approvals</option>
-            <option value="05_Manual">05 — Manual</option>
-          </select>
-        </div>
-        <div class="ff"><label class="fl">Sub folder</label><input class="fi2" id="u-sub" placeholder="e.g. Leave_Reports"></div>
-        <div class="ff"><label class="fl">Financial year</label>
-          <select class="fs" id="u-fy">
-            <option value="FY2025-26">FY 2025-26</option>
-            <option value="FY2026-27">FY 2026-27</option>
-            <option value="FY2024-25">FY 2024-25</option>
-          </select>
-        </div>
-        <div class="ff"><label class="fl">Original filename</label><input class="fi2" id="u-file" placeholder="LeaveBalance_March2026.csv"></div>
-        <div class="ff"><label class="fl">File size</label><input class="fi2" id="u-size" placeholder="e.g. 245 KB"></div>
-        <div class="ff span2">
-          <label class="fl">Drive File ID</label>
-          <input class="fi2" id="u-fid" placeholder="From Drive URL: drive.google.com/file/d/THIS_PART/view">
-          <span class="fhint">Open the file in Drive → copy the ID from the URL</span>
-        </div>
-        <div class="ff span2"><label class="fl">Notes</label><textarea class="fta" id="u-notes" placeholder="Period covered, data cutoff, source…"></textarea></div>
-      </div>
-      <div class="fa-row">
-        <button class="btn p" onclick="submitUpload()">Log upload</button>
-        <button class="btn" onclick="clearForm('u-name','u-sub','u-file','u-fid','u-size','u-notes')">Clear</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── RULES PAGE ── -->
-  <div class="page" id="pg-rules">
-    <div class="card">
-      <div class="ch"><div><div class="ct">Configure new report</div><div class="cs">Schedule in Darwinbox → get email → paste subject keyword here</div></div></div>
-      <div class="ibox"><b>How:</b> Schedule report in Darwinbox → forward to hraudit@cars24.com → apply Darwin label → copy the unique keyword from the email subject → paste below.</div>
-      <div class="fg2">
-        <div class="ff"><label class="fl">Report name</label><input class="fi2" id="r-name" placeholder="e.g. Leave Balance Report"></div>
-        <div class="ff"><label class="fl">Sender email</label><input class="fi2" id="r-sender" value="noreply@darwinbox.in"></div>
-        <div class="ff span2">
-          <label class="fl">Subject keyword</label>
-          <input class="fi2" id="r-subject" placeholder="e.g. Leave_Balance_FY25">
-          <span class="fhint">Script matches emails where subject CONTAINS this. Use the unique report name from Darwinbox.</span>
-        </div>
-        <div class="ff"><label class="fl">Drive category</label>
-          <select class="fs" id="r-cat">
-            <option value="01_Darwinbox">01_Darwinbox</option>
-            <option value="02_Medical">02_Medical</option>
-            <option value="03_Compliance">03_Compliance</option>
-            <option value="04_Approvals">04_Approvals</option>
-            <option value="05_Manual">05_Manual</option>
-          </select>
-        </div>
-        <div class="ff"><label class="fl">Sub folder</label><input class="fi2" id="r-sub" placeholder="e.g. Leave_Reports"></div>
-        <div class="ff">
-          <label class="fl">File prefix</label>
-          <input class="fi2" id="r-prefix" placeholder="e.g. LeaveReport">
-          <span class="fhint">Files: LeaveReport_2026-03-23_093200.csv</span>
-        </div>
-        <div class="ff"><label class="fl">Frequency</label>
-          <select class="fs" id="r-freq">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="as_needed">As needed</option>
-          </select>
-        </div>
-        <div class="ff span2"><label class="fl">Notes</label><input class="fi2" id="r-notes" placeholder="Optional context"></div>
-      </div>
-      <div class="fa-row">
-        <button class="btn p" onclick="submitRule()">Add rule</button>
-        <button class="btn" onclick="clearForm('r-name','r-subject','r-sub','r-prefix','r-notes')">Clear</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="ch">
-        <div><div class="ct">Active sync rules</div><div class="cs" id="rules-sub">—</div></div>
-        <button class="tb-pill" onclick="loadRules()">↻ Refresh</button>
-      </div>
-      <div id="rules-tbl"><div class="spin-wrap"><div class="spin"></div></div></div>
-    </div>
-  </div>
-
-  <!-- ── SYNC LOG PAGE ── -->
-  <div class="page" id="pg-log">
-    <div class="card">
-      <div class="ch">
-        <div><div class="ct">Sync log</div><div class="cs" id="log-sub">All file sync activity</div></div>
-        <button class="tb-pill" onclick="loadLog()">↻ Refresh</button>
-      </div>
-      <div id="log-tbl"><div class="spin-wrap"><div class="spin"></div></div></div>
-    </div>
-  </div>
-
-  <!-- ── SETTINGS PAGE ── -->
-  <div class="page" id="pg-setup">
-    <div class="setup-step">
-      <div class="step-head">
-        <div class="step-n">1</div>
-        <div><div class="step-title">Web App URL</div><div class="step-sub">The connection between portal and your Google Drive</div></div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <input class="fi2" id="setup-url" placeholder="https://script.google.com/a/macros/cars24.com/s/.../exec" style="flex:1">
-        <button class="btn p" onclick="saveWebAppUrl(true)">Save & reconnect</button>
-      </div>
-      <div style="font-size:11px;color:var(--t3);margin-top:8px" id="setup-url-status">—</div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-head">
-        <div class="step-n" id="cookie-step-n">2</div>
-        <div><div class="step-title">Darwinbox session cookie</div><div class="step-sub" id="cookie-step-sub">Required for downloading reports from Darwinbox links</div></div>
-      </div>
-      <div id="cookie-health-detail" style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:12px"></div>
-      <div class="wbox" style="font-size:12px">
-        <b>How to refresh cookie (takes 2 minutes):</b><br>
-        1. Open Chrome → <code>cars24.darwinbox.com</code> (stay logged in)<br>
-        2. Press <code>F12</code> → Application tab → Cookies → <code>cars24.darwinbox.com</code><br>
-        3. Find cookie named <code>session</code> → copy the Value<br>
-        4. Open Apps Script → find <code>SET_DARWINBOX_COOKIE()</code> → paste value → Run
-      </div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-head">
-        <div class="step-n done">✓</div>
-        <div><div class="step-title">Auto trigger</div><div class="step-sub">Runs sync hourly automatically</div></div>
-      </div>
-      <div class="gbox" style="font-size:12px;margin-bottom:0"><b>To set hourly trigger:</b> Apps Script → ⏰ Triggers → + Add Trigger → function: <code>RUN_SYNC_MANUALLY</code> → time-based → every 1 hour → Save</div>
-    </div>
-
-    <div class="setup-step">
-      <div class="step-head">
-        <div class="step-n done">✓</div>
-        <div><div class="step-title">Gmail auto-label</div><div class="step-sub">Auto-applies Darwin label to all Darwinbox emails</div></div>
-      </div>
-      <div class="ibox" style="margin-bottom:0;font-size:12px"><b>Set once:</b> Gmail → Settings (⚙) → Filters → Create filter → From: <code>noreply@darwinbox.in</code> → Apply label: <code>Darwin</code> → Create. Every Darwinbox report email is auto-labelled forever.</div>
-    </div>
-  </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /app -->
-
-<div id="toast"><div class="td" id="td"></div><span id="tm"></span></div>
+<!-- MODAL + DRAWER -->
+<div class="overlay" id="ov" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+  <div class="mhead"><div class="mtitle" id="mtitle">—</div><button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:22px;line-height:1">×</button></div>
+  <div class="mbody" id="mbody"></div>
+  <div class="mfoot" id="mfoot"></div>
+</div>
+<div class="overlay" id="dov" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="dhead"><div style="flex:1;min-width:0"><div class="dtitle" id="dtitle">—</div><div class="dmeta" id="dmeta">—</div></div><button onclick="closeDrawer()" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:22px;line-height:1;flex-shrink:0">×</button></div>
+  <div class="dbody" id="dbody"></div>
+  <div class="dfoot" id="dfooter"></div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════
-const LS = (k,d) => { try { const v=localStorage.getItem('zl_'+k); return v?JSON.parse(v):d; } catch{return d;} };
-const SS = (k,v) => { try { localStorage.setItem('zl_'+k,JSON.stringify(v)); } catch{} };
+// ══════════════════════════════════════════════════════════
+//  ⚙️  CONFIGURATION — PASTE YOUR SUPABASE DETAILS HERE
+// ══════════════════════════════════════════════════════════
+var SUPABASE_URL = 'https://txnrojgivukcpvftaiwz.supabase.co';      // e.g. https://abcdefgh.supabase.co
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4bnJvamdpdnVrY3B2ZnRhaXd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNDAyODIsImV4cCI6MjA4OTkxNjI4Mn0.WnLBLf4AxEw6gSRsM7BeETErQWWJZmpMLkAExzue220'; // from Supabase → Settings → API → anon public
+// ══════════════════════════════════════════════════════════
 
-let WEB_APP_URL = LS('url','');
-let ALL_FILES   = [];
-let ALL_RULES   = [];
-let activeFY    = LS('fy','FY2025-26');
-let activeCat   = 'all';
-let _cbIdx      = 0; // JSONP callback counter
+var FY = 'FY2025-26';
+var SEL_FY = 'FY2025-26';
+var CUR_PAGE = 'dashboard';
+var USER = null;
+var UPLOAD_FILES = [];
+var RULES = [];
+var SENDERS = [];
 
-// ═══════════════════════════════════════════
-//  JSONP — bypass CORS, works from GitHub Pages
-// ═══════════════════════════════════════════
-function jsonp(action, params) {
-  return new Promise((resolve, reject) => {
-    if (!WEB_APP_URL) { reject(new Error('No Web App URL')); return; }
+var SUBCATS = {
+  '01_Darwinbox':['Employee_Master','Leave_Reports','Attendance_Reports','Payroll_Reports','Separation_Reports','Onboarding_Reports','Perf_Reports','CompBen_Reports','Asset_Reports','Loan_Advances'],
+  '02_Medical':['GMC_Claims','OPD_Reports','Premium_Paid','Policy_Docs'],
+  '03_Compliance':['PF_ECR','ESIC','PT_Returns','Labour_Law'],
+  '04_Approvals':['Approval_Records'],
+  '05_Manual':['Policies','SOPs','Adhoc_Uploads']
+};
+var PERMS = [
+  {key:'can_view',label:'View reports',sub:'Browse and read synced reports'},
+  {key:'can_download',label:'Download reports',sub:'Download files from Drive'},
+  {key:'can_upload',label:'Upload documents',sub:'Upload files via Document Upload'},
+  {key:'can_config',label:'Manage rules & logs',sub:'Add, edit, pause sync rules, view log'},
+  {key:'can_manage_users',label:'Manage users',sub:'Add, edit, deactivate users'},
+  {key:'can_observe',label:'Raise observations',sub:'Create new audit observations'},
+  {key:'can_resolve',label:'Resolve observations',sub:'Reply and close observations'},
+];
 
-    const cbName = '__zl_cb_' + (++_cbIdx);
-    const timeout = setTimeout(() => {
-      delete window[cbName];
-      reject(new Error('Request timed out'));
-    }, 15000);
-
-    window[cbName] = (data) => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      document.getElementById(cbName) && document.getElementById(cbName).remove();
-      if (data && data.error) reject(new Error(data.error));
-      else resolve(data);
-    };
-
-    const qs = Object.entries(params||{})
-      .filter(([,v]) => v !== '' && v !== null && v !== undefined)
-      .map(([k,v]) => k+'='+encodeURIComponent(v)).join('&');
-
-    const url = WEB_APP_URL
-      + '?callback=' + cbName
-      + '&action=' + action
-      + (qs ? '&' + qs : '');
-
-    const s = document.createElement('script');
-    s.id  = cbName;
-    s.src = url;
-    s.onerror = () => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      s.remove();
-      reject(new Error('Network error — check Web App URL'));
-    };
-    document.head.appendChild(s);
-  });
-}
-
-// ═══════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════
-const TITLES = { reports:'Drive Reports', upload:'Manual Upload', rules:'Sync Rules', log:'Sync Log', setup:'Settings' };
-
-function nav(id, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.getElementById('pg-'+id).classList.add('on');
-  document.querySelectorAll('.nb').forEach(n => n.classList.remove('on'));
-  if (el) el.classList.add('on');
-  document.getElementById('pg-title').textContent = TITLES[id] || id;
-  if (id === 'rules') loadRules();
-  if (id === 'log')   loadLog();
-  if (id === 'setup') renderSetupPage();
-}
-
-// ═══════════════════════════════════════════
-//  WEB APP URL
-// ═══════════════════════════════════════════
-function saveWebAppUrl(fromSetup) {
-  const input = document.getElementById(fromSetup ? 'setup-url' : 'modal-url');
-  const url   = input.value.trim();
-  if (!url.includes('script.google.com')) { toast('Paste a valid Apps Script Web App URL','amber'); return; }
-  WEB_APP_URL = url; SS('url', url);
-  document.getElementById('setup-modal').classList.remove('open');
-  toast('Connected! Loading data…','green');
-  loadAll();
-}
-
-// ═══════════════════════════════════════════
-//  LOAD ALL DATA
-// ═══════════════════════════════════════════
-async function loadAll() {
-  if (!WEB_APP_URL) {
-    document.getElementById('setup-modal').classList.add('open');
-    setHealth('x','Not connected','Paste Web App URL to connect');
-    return;
-  }
-
-  setRefreshing(true);
-  setHealth('x','Loading…','Connecting to Drive');
-
-  try {
-    const [filesData, statusData] = await Promise.all([
-      jsonp('files', { fy: activeFY }),
-      jsonp('status', {}),
-    ]);
-
-    ALL_FILES = filesData.files || [];
-    SS('files_'+activeFY, ALL_FILES);
-
-    buildFYPills(activeFY);
-    buildCatPills();
-    renderStats();
-    renderFiles();
-
-    // Cookie health from status
-    handleCookieHealth(statusData);
-    updateHealthBar(statusData);
-
-    document.getElementById('sb-fc').textContent = ALL_FILES.length;
-    setRefreshing(false);
-
-  } catch(e) {
-    // Try cache
-    const cached = LS('files_'+activeFY, []);
-    if (cached.length) {
-      ALL_FILES = cached;
-      buildFYPills(activeFY); buildCatPills(); renderStats(); renderFiles();
-      setHealth('a','Cached · '+cached.length+' files','Could not reach server');
-    } else {
-      document.getElementById('files-list').innerHTML =
-        `<div class="empty"><div class="ei">⚠️</div>Could not load files<br><span style="font-size:11px">${e.message}</span></div>`;
-      setHealth('r','Connection failed',e.message);
-    }
-    setRefreshing(false);
-    toast('Load failed: '+e.message,'red');
-  }
-}
-
-async function loadRules() {
-  document.getElementById('rules-tbl').innerHTML = '<div class="spin-wrap"><div class="spin"></div></div>';
-  try {
-    const data = await jsonp('rules', {});
-    ALL_RULES  = data.rules || [];
-    document.getElementById('sb-rc').textContent = ALL_RULES.length;
-    renderRules();
-  } catch(e) {
-    document.getElementById('rules-tbl').innerHTML = '<div class="empty">Failed: '+e.message+'</div>';
-  }
-}
-
-async function loadLog() {
-  document.getElementById('log-tbl').innerHTML = '<div class="spin-wrap"><div class="spin"></div></div>';
-  try {
-    const data = await jsonp('log', { limit:'100' });
-    renderLog(data.logs || []);
-    document.getElementById('log-sub').textContent = (data.total||0) + ' total log entries';
-  } catch(e) {
-    document.getElementById('log-tbl').innerHTML = '<div class="empty">Failed: '+e.message+'</div>';
-  }
-}
-
-// ═══════════════════════════════════════════
-//  RENDER FILES
-// ═══════════════════════════════════════════
-const EMO = {'01_Darwinbox':'📊','02_Medical':'🏥','03_Compliance':'🔏','04_Approvals':'✅','05_Manual':'📁'};
-const BG  = {'01_Darwinbox':'rgba(71,54,254,0.12)','02_Medical':'rgba(0,229,160,0.1)','03_Compliance':'rgba(255,179,64,0.1)','04_Approvals':'rgba(91,196,255,0.1)','05_Manual':'rgba(255,255,255,0.05)'};
-
-function buildFYPills(sel) {
-  const fys = ['FY2025-26','FY2026-27','FY2024-25'];
-  document.getElementById('fy-pills').innerHTML = fys.map(fy =>
-    `<span class="fp${fy===sel?' on':''}" onclick="switchFY('${fy}',this)">${fy}</span>`
-  ).join('');
-}
-
-function switchFY(fy, el) {
-  activeFY = fy; activeCat = 'all'; SS('fy', fy);
-  document.querySelectorAll('#fy-pills .fp').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  loadAll();
-}
-
-function buildCatPills() {
-  const cats = ['all', ...new Set(ALL_FILES.map(f => f.category))].filter(Boolean);
-  document.getElementById('cat-pills').innerHTML = cats.map(c =>
-    `<span class="fp${c===activeCat?' on':''}" onclick="filterCat('${c}',this)">${c==='all'?'All':c.replace(/^\d+_/,'')}</span>`
-  ).join('');
-}
-
-function filterCat(cat, el) {
-  activeCat = cat;
-  document.querySelectorAll('#cat-pills .fp').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  renderFiles();
-}
-
-function renderStats() {
-  const cats = {};
-  ALL_FILES.forEach(f => cats[f.category]=(cats[f.category]||0)+1);
-  const top = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
-  const cols = {
-    'Total files'  : { n:ALL_FILES.length, tag:'', cls:'' },
-    'Categories'   : { n:Object.keys(cats).length, tag:'', cls:'' },
-    'Darwinbox'    : { n:cats['01_Darwinbox']||0, tag:'synced', cls:'tg' },
-    'Top category' : { n:top?top[1]:0, tag:top?top[0].replace(/^\d+_/,''):'—', cls:'tb' },
+// ── SUPABASE API ──────────────────────────────────────────
+async function sb(table, params, method, body) {
+  var url = SUPABASE_URL + '/rest/v1/' + table;
+  if (params) url += '?' + params;
+  var opts = {
+    method: method || 'GET',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=minimal,resolution=merge-duplicates' : 'return=representation',
+    },
   };
-  document.getElementById('stats-row').innerHTML = Object.entries(cols).map(([l,v]) =>
-    `<div class="stat"><div class="stat-n">${v.n}</div><div class="stat-l">${l}</div>${v.tag?`<span class="stat-d tag ${v.cls}">${v.tag}</span>`:''}</div>`
-  ).join('');
+  if (body) opts.body = JSON.stringify(body);
+  var r = await fetch(url, opts);
+  if (!r.ok) throw new Error('Supabase error: ' + r.status + ' ' + await r.text());
+  var text = await r.text();
+  return text ? JSON.parse(text) : null;
+}
+async function sbGet(table, params) { return sb(table, params); }
+async function sbPost(table, body) { return sb(table, null, 'POST', body); }
+async function sbPatch(table, match, body) { return sb(table, match, 'PATCH', body); }
+async function logAudit(type, action, detail) {
+  try { await sbPost('audit_log', {type:type,user_email:USER?USER.email:'',user_name:USER?USER.name:'',action:action,detail:detail}); } catch(e) {}
 }
 
-function renderFiles() {
-  const q = (document.getElementById('search').value||'').toLowerCase();
-  const files = ALL_FILES.filter(f =>
-    (activeCat==='all'||f.category===activeCat) &&
-    (!q||f.name.toLowerCase().includes(q)||(f.folder||'').toLowerCase().includes(q))
-  );
-
-  document.getElementById('files-sub').textContent =
-    files.length+' files · '+activeFY+(activeCat!=='all'?' · '+activeCat.replace(/^\d+_/,''):'');
-
-  if (!files.length) {
-    document.getElementById('files-list').innerHTML =
-      `<div class="empty"><div class="ei">📂</div>${activeCat==='all'?'No files in Drive for '+activeFY:'No files in this category'}<br><span style="font-size:11px">Run RUN_SYNC_MANUALLY() in Apps Script to fetch reports</span></div>`;
-    return;
-  }
-
-  document.getElementById('files-list').innerHTML = files.map(f => `
-    <div class="fr" onclick="window.open('${f.drive_url||'#'}','_blank')">
-      <div class="fi" style="background:${BG[f.category]||'var(--s2)'}">${EMO[f.category]||'📄'}</div>
-      <div class="fn">
-        <div class="fn-name">${f.name}</div>
-        <div class="fn-meta">${(f.folder||f.category).replace(/^\d+_/,'')}</div>
-      </div>
-      <div class="fsize">${f.size}</div>
-      <div class="fdate">${f.created||''}</div>
-      <span class="tag tg" style="flex-shrink:0;margin:0 8px">synced</span>
-      <div class="fa">
-        <div class="fa-btn" title="Open in Drive" onclick="event.stopPropagation();window.open('${f.drive_url||'#'}','_blank')">↗</div>
-        <div class="fa-btn" title="Download" onclick="event.stopPropagation();window.open('${f.download_url||'#'}','_blank')">⬇</div>
-      </div>
-    </div>`).join('');
-}
-
-// ═══════════════════════════════════════════
-//  RENDER RULES
-// ═══════════════════════════════════════════
-function renderRules() {
-  if (!ALL_RULES.length) {
-    document.getElementById('rules-tbl').innerHTML = '<div class="empty">No rules yet. Add one above.</div>';
-    document.getElementById('rules-sub').textContent = '0 rules';
-    return;
-  }
-  const active = ALL_RULES.filter(r=>String(r.is_active).toUpperCase()==='TRUE').length;
-  document.getElementById('rules-sub').textContent = ALL_RULES.length+' rules · '+active+' active';
-  document.getElementById('rules-tbl').innerHTML = `
-    <table><thead><tr><th>Rule</th><th>Subject keyword</th><th>Folder</th><th>Freq</th><th>Status</th><th></th></tr></thead>
-    <tbody>${ALL_RULES.map(r=>`<tr>
-      <td>${r.rule_name||''}</td>
-      <td style="font-family:var(--fm);font-size:11px;color:var(--brand)">${r.subject_exact||''}</td>
-      <td style="font-size:11px;color:var(--t3)">${(r.category||'').replace(/^\d+_/,'')} / ${r.sub_folder||''}</td>
-      <td><span class="tag tb">${r.frequency||'daily'}</span></td>
-      <td><span class="tag ${String(r.is_active).toUpperCase()==='TRUE'?'tg':'ta'}">${String(r.is_active).toUpperCase()==='TRUE'?'active':'paused'}</span></td>
-      <td><button class="tb-pill" style="padding:3px 8px;font-size:10px" onclick="toggleRule('${r.rule_id}',${String(r.is_active).toUpperCase()==='TRUE'})">${String(r.is_active).toUpperCase()==='TRUE'?'Pause':'Activate'}</button></td>
-    </tr>`).join('')}</tbody></table>`;
-}
-
-// ═══════════════════════════════════════════
-//  RENDER SYNC LOG
-// ═══════════════════════════════════════════
-function renderLog(logs) {
-  if (!logs.length) { document.getElementById('log-tbl').innerHTML = '<div class="empty">No sync log entries yet</div>'; return; }
-  document.getElementById('log-tbl').innerHTML = `
-    <table><thead><tr><th>Time</th><th>Rule</th><th>File</th><th>Size</th><th>Status</th></tr></thead>
-    <tbody>${logs.map(l=>`<tr>
-      <td style="font-family:var(--fm);font-size:11px;white-space:nowrap">${(l.synced_at||'').substring(0,17)}</td>
-      <td>${l.rule_name||''}</td>
-      <td style="font-family:var(--fm);font-size:11px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.file_name||l.email_subject||''}</td>
-      <td style="font-family:var(--fm);font-size:11px">${l.file_size||''}</td>
-      <td><span class="tag ${l.status==='success'?'tg':l.status==='error'?'tr2':'ta'}">${l.status||''}</span></td>
-    </tr>`).join('')}</tbody></table>`;
-}
-
-// ═══════════════════════════════════════════
-//  COOKIE HEALTH
-// ═══════════════════════════════════════════
-function handleCookieHealth(status) {
-  if (!status) return;
-  const cs = status.cookie_status;
-  const cl = status.cookie_days_left;
-  const banner = document.getElementById('cookie-banner');
-  const txt    = document.getElementById('cookie-banner-txt');
-
-  if (cs === 'expiring') {
-    banner.className = 'show';
-    txt.textContent  = '⚠️  Darwinbox cookie expires in ' + cl + ' days. Refresh now to avoid sync failures.';
-  } else if (cs === 'expired' || cs === 'missing') {
-    banner.className = 'show urgent';
-    txt.textContent  = '🚨  Darwinbox cookie expired. Reports not syncing. Go to Settings to fix.';
+// ── LOGIN ─────────────────────────────────────────────────
+function loginCheck(el) {
+  var v = el.value.trim();
+  var ok = /^[^\s@]+@cars24\.com$/i.test(v);
+  document.getElementById('login-btn').disabled = !ok;
+  var err = document.getElementById('login-err');
+  if (v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && !ok) {
+    err.style.display = 'block';
+    err.textContent = 'Only @cars24.com addresses are allowed';
   } else {
-    banner.className = '';
+    err.style.display = 'none';
   }
 }
 
-function updateHealthBar(status) {
-  if (!status) { setHealth('x','Connected','—'); return; }
-  const cs = status.cookie_status;
-  const dotClass = cs==='healthy'?'g':cs==='expiring'?'a':cs==='expired'?'r':'x';
-  const txt  = 'Live · '+status.synced_files+' files';
-  const sub  = status.current_fy + ' · ' + status.active_rules + ' rules';
-  setHealth(dotClass, txt, sub);
-  document.getElementById('conn-fy') && (document.getElementById('conn-fy').textContent = sub);
-}
-
-function renderSetupPage() {
-  const urlEl = document.getElementById('setup-url');
-  if (urlEl) urlEl.value = WEB_APP_URL || '';
-  document.getElementById('setup-url-status').textContent = WEB_APP_URL ? '✅ URL saved' : 'Not connected';
-
-  jsonp('status',{}).then(s => {
-    const h = s.cookie_status;
-    const n = document.getElementById('cookie-step-n');
-    const sub = document.getElementById('cookie-step-sub');
-    const detail = document.getElementById('cookie-health-detail');
-    if (h==='healthy')  { n.className='step-n done'; n.textContent='✓'; sub.textContent='Cookie healthy · '+s.cookie_days_left+' days remaining'; detail.innerHTML=`<div class="gbox" style="margin-bottom:0"><b>All good.</b> Cookie valid for ${s.cookie_days_left} more days. No action needed.</div>`; }
-    else if (h==='expiring') { n.className='step-n'; n.style.background='var(--amber)'; sub.textContent='⚠️ Expires in '+s.cookie_days_left+' days'; detail.innerHTML=`<div class="wbox" style="margin-bottom:0"><b>Refresh soon.</b> Cookie expires in ${s.cookie_days_left} days. Follow the steps below.</div>`; }
-    else { n.className='step-n'; n.style.background='var(--red)'; sub.textContent='🚨 Cookie expired — reports not syncing'; detail.innerHTML=`<div class="rbox" style="margin-bottom:0"><b>Action needed now.</b> Cookie has expired. Reports are not being downloaded. Follow the steps below immediately.</div>`; }
-  }).catch(()=>{});
-}
-
-// ═══════════════════════════════════════════
-//  FORM SUBMISSIONS
-// ═══════════════════════════════════════════
-async function submitUpload() {
-  const name = document.getElementById('u-name').value.trim();
-  const file = document.getElementById('u-file').value.trim();
-  if (!name||!file) { toast('Fill Report name and Filename','amber'); return; }
+async function doLogin() {
+  var email = document.getElementById('login-email').value.trim().toLowerCase();
+  var btn = document.getElementById('login-btn');
+  var txt = document.getElementById('login-txt');
+  var spin = document.getElementById('login-spin');
+  var arrow = document.getElementById('login-arrow');
+  var err = document.getElementById('login-err');
+  btn.disabled = true; spin.style.display = 'block'; txt.textContent = 'Checking…'; arrow.style.display = 'none';
   try {
-    const data = await jsonp('manual',{});
-    // Use direct POST for write operations
-    const resp = await postData('log_upload', {
-      report_name:name, category:document.getElementById('u-cat').value,
-      sub_folder:document.getElementById('u-sub').value,
-      fy:document.getElementById('u-fy').value,
-      original_filename:file,
-      drive_file_id:document.getElementById('u-fid').value,
-      file_size:document.getElementById('u-size').value,
-      notes:document.getElementById('u-notes').value,
-      uploaded_by:'Vivek Naiwal', uploader_email:'vivek.naiwal@cars24.com',
+    var users = await sbGet('users', 'email=eq.' + encodeURIComponent(email) + '&is_active=eq.true&limit=1');
+    if (!users || !users.length) {
+      spin.style.display = 'none'; arrow.style.display = 'block'; btn.disabled = false; txt.textContent = 'Sign in';
+      err.style.display = 'block'; err.textContent = 'Access denied. This email is not whitelisted. Contact People Ops.';
+      return;
+    }
+    USER = users[0];
+    // Update last login
+    try { await sbPatch('users', 'email=eq.' + encodeURIComponent(email), {last_login: new Date().toISOString()}); } catch(e) {}
+    await logAudit('login', 'User logged in', email + ' · ' + USER.role);
+    // Success
+    txt.textContent = '✓ Access granted';
+    btn.style.background = '#00875F'; btn.style.boxShadow = '0 4px 20px rgba(0,135,95,0.3)'; btn.disabled = false;
+    setTimeout(function() {
+      var ls = document.getElementById('login-screen');
+      ls.style.transition = 'opacity 0.35s';
+      ls.style.opacity = '0';
+      setTimeout(function() {
+        ls.style.display = 'none';
+        // Update user info in sidebar
+        var initials = USER.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+        document.getElementById('uav').textContent = initials;
+        document.getElementById('uname').textContent = USER.name;
+        document.getElementById('urole').textContent = USER.role + ' · P&C';
+        // Show FY selector
+        document.getElementById('fyo').classList.add('open');
+      }, 350);
+    }, 600);
+  } catch(e) {
+    spin.style.display = 'none'; arrow.style.display = 'block'; btn.disabled = false; txt.textContent = 'Sign in';
+    err.style.display = 'block'; err.textContent = 'Connection error. Check your internet and try again.';
+  }
+}
+
+// ── FY ────────────────────────────────────────────────────
+function selFY(el, fy) { document.querySelectorAll('.fyopt').forEach(function(o){o.classList.remove('sel');}); el.classList.add('sel'); SEL_FY = fy; }
+function confirmFY() {
+  FY = SEL_FY;
+  var d = FY.replace('FY','FY ');
+  document.getElementById('fy-disp').textContent = d;
+  document.getElementById('tbfy').textContent = d;
+  document.getElementById('fyo').classList.remove('open');
+  loadPage(CUR_PAGE);
+}
+
+// ── NAV ───────────────────────────────────────────────────
+var TITLES = {dashboard:'Dashboard',reports:'Reports',approvals:'Approval Emails',upload:'Document Upload',rules:'Sync Rules',synclog:'Sync Log',obs:'Observations',audit:'Audit Log',users:'User Management',settings:'Settings'};
+function nav(id, el) {
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  if(el) el.classList.add('on');
+  CUR_PAGE = id;
+  document.getElementById('tbt').innerHTML = TITLES[id] + ' <span class="tbfy">' + FY + '</span>';
+  loadPage(id);
+}
+function loadPage(id) {
+  if(id==='dashboard') loadDash();
+  else if(id==='reports') loadReports();
+  else if(id==='approvals') loadApprovals();
+  else if(id==='upload') renderUpload();
+  else if(id==='rules') loadRules();
+  else if(id==='synclog') loadSyncLog();
+  else if(id==='obs') loadObs();
+  else if(id==='audit') loadAudit();
+  else if(id==='users') loadUsers();
+  else if(id==='settings') loadSettings();
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function set(id, html) { var e = document.getElementById(id); if(e) e.innerHTML = html; }
+function loading(id) { set(id, '<div class="lp"><div class="spin"></div><span>Loading…</span></div>'); }
+function empty(icon, title, sub) { return '<div class="es"><div style="font-size:36px;opacity:0.3;margin-bottom:12px">'+icon+'</div><div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:4px">'+title+'</div><div style="font-size:12px;color:var(--t3)">'+sub+'</div></div>'; }
+function tag(l,c) { return '<span class="tag '+c+'" style="font-size:10px">'+l+'</span>'; }
+function card(title, sub, body, action) { return '<div class="card"><div class="ch"><div><div class="ct">'+title+'</div>'+(sub?'<div class="cs">'+sub+'</div>':'')+'</div>'+(action||'')+'</div><div class="cb">'+body+'</div></div>'; }
+function hrow(dot,label,val) { return '<div class="row"><div class="hdot '+dot+'"></div><span style="flex:1;font-size:12px;color:var(--t2)">'+label+'</span><span style="font-size:11px;font-family:var(--fm);color:var(--t3)">'+val+'</span></div>'; }
+function statCard(n,l,color,icon) { return '<div class="stat"><div style="font-size:14px;margin-bottom:8px">'+icon+'</div><div class="stat-n" style="color:'+color+'">'+n+'</div><div class="stat-l">'+l+'</div></div>'; }
+function ic(name) { return (name||'').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
+function openModal() { document.getElementById('ov').classList.add('open'); document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('ov').classList.remove('open'); document.getElementById('modal').classList.remove('open'); }
+function openDrawer() { document.getElementById('dov').classList.add('open'); document.getElementById('drawer').classList.add('open'); }
+function closeDrawer() { document.getElementById('dov').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
+function infoCell(l,v) { return '<div><div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">'+l+'</div><div style="font-size:12px;color:var(--t1);font-weight:500">'+v+'</div></div>'; }
+
+// ── DASHBOARD ─────────────────────────────────────────────
+async function loadDash() {
+  set('pg-dashboard', '<div class="lp"><div class="spin"></div><span>Loading dashboard…</span></div>');
+  try {
+    var [files, approvals, obs, log, cfg] = await Promise.all([
+      sbGet('manual_uploads', 'fy=eq.'+FY+'&select=id'),
+      sbGet('approval_log', 'fy=eq.'+FY+'&select=id'),
+      sbGet('observations', 'fy=eq.'+FY+'&status=neq.resolved&select=id'),
+      sbGet('sync_log', 'status=eq.success&select=id'),
+      sbGet('app_config', 'key=eq.cookie_set_on&limit=1'),
+    ]);
+    var cookieSetOn = cfg && cfg.length ? cfg[0].value : null;
+    var cookieDays = 0;
+    if (cookieSetOn) { cookieDays = Math.max(0, 30 - Math.floor((Date.now() - new Date(cookieSetOn)) / 86400000)); }
+    var alerts = '';
+    if (cookieDays > 0 && cookieDays <= 10) alerts = '<div class="alert amber">⚠ Darwinbox cookie expires in '+cookieDays+' days. <span style="text-decoration:underline;cursor:pointer" onclick="nav(\'settings\',document.getElementById(\'nb-settings\'))">Fix in Settings →</span><button onclick="this.parentElement.style.display=\'none\'" style="background:none;border:none;color:currentColor;cursor:pointer;font-size:16px;line-height:1;margin-left:auto;opacity:0.6">×</button></div>';
+    var html = alerts +
+      '<div style="font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-0.02em;margin-bottom:4px">Good day, '+USER.name+' 👋</div>' +
+      '<div style="font-size:12px;color:var(--t3);margin-bottom:18px">ZeroLag is live · '+FY+'</div>' +
+      '<div class="stats">' +
+        statCard((files||[]).length,'Manual uploads','var(--brand)','📁') +
+        statCard((approvals||[]).length,'Approvals captured','var(--green)','✉️') +
+        statCard((obs||[]).length,'Open observations','var(--amber)','🔍') +
+        statCard((log||[]).length,'Total files synced','var(--brand)','🔄') +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 300px;gap:14px">' +
+        '<div id="dash-left"></div>' +
+        '<div>' + card('System health','Live status',
+          hrow('g','Database','Supabase connected ✓') +
+          hrow('g','Portal','hraudit.github.io/ZeroLag') +
+          hrow(cookieDays<=0?'r':cookieDays<=10?'a':'g','Darwinbox cookie', cookieDays>0?cookieDays+' days left':'Not set') +
+          hrow('g','Approval senders','Gaurav · Sahil') +
+          '<div style="margin-top:12px"><button class="btn" style="width:100%;justify-content:center" onclick="nav(\'rules\',document.getElementById(\'nb-rules\'))">⚙ Manage sync rules</button></div>'
+        ) + '</div>' +
+      '</div>';
+    set('pg-dashboard', html);
+    // Load recent activity
+    var audit = await sbGet('audit_log', 'order=created_at.desc&limit=5');
+    var actHtml = (audit||[]).length ? (audit||[]).map(function(e){
+      return '<div class="row"><div class="hdot" style="background:var(--brand)"></div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e.action+'</div><div style="font-size:11px;color:var(--t3);font-family:var(--fm)">'+e.user_name+' · '+new Date(e.created_at).toLocaleString('en-IN')+'</div></div></div>';
+    }).join('') : empty('📋','No activity yet','');
+    var dashLeft = document.getElementById('dash-left');
+    if(dashLeft) dashLeft.innerHTML = card('Recent activity','Last 5 events',actHtml);
+    // Update obs badge
+    var openObs = (obs||[]).length;
+    var nboc = document.getElementById('nb-oc');
+    if(nboc && openObs > 0) { nboc.textContent = openObs; nboc.style.display = ''; }
+  } catch(e) {
+    set('pg-dashboard', '<div class="lp" style="height:300px"><div style="font-size:32px;opacity:0.3;margin-bottom:12px">⚠️</div><div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:6px">Could not load dashboard</div><div style="font-size:12px;color:var(--t3);margin-bottom:16px">'+e.message+'</div><button class="btn p" onclick="loadDash()">Retry</button></div>');
+  }
+}
+
+// ── REPORTS ───────────────────────────────────────────────
+async function loadReports() {
+  loading('pg-reports');
+  try {
+    var data = await sbGet('manual_uploads', 'fy=eq.'+FY+'&order=uploaded_at.desc');
+    if(!data||!data.length){set('pg-reports',card('Reports',FY,empty('📂','No reports yet','Upload files or run a sync to see reports')));return;}
+    document.getElementById('nb-rc').textContent=data.length; document.getElementById('nb-rc').style.display='';
+    var groups={};
+    data.forEach(function(f){var c=f.category||'Other';if(!groups[c])groups[c]=[];groups[c].push(f);});
+    var catN={'01_Darwinbox':'Darwinbox','02_Medical':'Medical','03_Compliance':'Compliance','04_Approvals':'Approvals','05_Manual':'Documents'};
+    var html='<div style="font-size:12px;color:var(--t3);font-family:var(--fm);margin-bottom:14px">'+data.length+' files · '+FY+'</div>';
+    Object.keys(groups).forEach(function(cat){
+      var files=groups[cat];
+      html+='<div class="card"><div class="ch"><div class="ct">'+(catN[cat]||cat)+'</div><div class="cs">'+files.length+' files</div></div><div class="cb">';
+      html+=files.map(function(f){
+        return '<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(71,54,254,0.04)">' +
+          '<span style="font-size:18px;flex-shrink:0">📋</span>' +
+          '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.report_name+'</div>' +
+          '<div style="font-size:10px;color:var(--t3);font-family:var(--fm)">'+f.file_size+' · '+f.sub_folder.replace(/_/g,' ')+' · '+new Date(f.uploaded_at).toLocaleDateString('en-IN')+'</div></div>' +
+          (f.drive_url?'<a href="'+f.drive_url+'" target="_blank" class="btn p" style="font-size:11px;padding:4px 10px;text-decoration:none" onclick="logAudit(\'download\',\'File downloaded\',\''+f.report_name+'\')">↗ Open</a>':'') +
+          '</div>';
+      }).join('');
+      html+='</div></div>';
     });
-    if (resp.ok) { toast('Upload logged — '+resp.upload_id,'green'); clearForm('u-name','u-sub','u-file','u-fid','u-size','u-notes'); }
-    else toast('Error: '+(resp.error||'Unknown'),'red');
-  } catch(e) { toast('Failed: '+e.message,'red'); }
+    set('pg-reports',html);
+  } catch(e){set('pg-reports','<div class="lp">'+e.message+'</div>');}
 }
 
-async function submitRule() {
-  const name=document.getElementById('r-name').value.trim();
-  const subj=document.getElementById('r-subject').value.trim();
-  const sub=document.getElementById('r-sub').value.trim();
-  const pfx=document.getElementById('r-prefix').value.trim();
-  if (!name||!subj||!sub||!pfx) { toast('Fill all required fields','amber'); return; }
+// ── APPROVALS ─────────────────────────────────────────────
+async function loadApprovals() {
+  loading('pg-approvals');
   try {
-    const resp = await postData('add_rule', {
-      rule_name:name, sender_email:document.getElementById('r-sender').value,
-      subject_exact:subj, category:document.getElementById('r-cat').value,
-      sub_folder:sub, file_prefix:pfx,
-      frequency:document.getElementById('r-freq').value,
-      notes:document.getElementById('r-notes').value,
-      created_by:'vivek.naiwal@cars24.com',
-    });
-    if (resp.ok) { toast('Rule added — '+resp.rule_id,'green'); clearForm('r-name','r-subject','r-sub','r-prefix','r-notes'); loadRules(); }
-    else toast('Error: '+(resp.error||'Unknown'),'red');
-  } catch(e) { toast('Failed: '+e.message,'red'); }
+    var data = await sbGet('approval_log', 'fy=eq.'+FY+'&order=received_at.desc');
+    if(!data||!data.length){set('pg-approvals',card('Approval Emails',FY,empty('✉️','No approvals captured yet','Approvals are auto-captured from Gaurav and Sahil')));return;}
+    document.getElementById('nb-ac').textContent=data.length; document.getElementById('nb-ac').style.display='';
+    var html='<div style="font-size:12px;color:var(--t3);font-family:var(--fm);margin-bottom:14px">'+data.length+' approvals · '+FY+'</div>';
+    html+=data.map(function(a){
+      var colors=['#4736FE','#00875F','#C07000'];
+      var bg=colors[Math.abs((a.from_email||'').charCodeAt(0))%colors.length];
+      return '<div class="card" style="cursor:pointer" onclick="openApDrawer(\''+encodeURIComponent(JSON.stringify(a))+'\')"><div style="display:flex;align-items:center;gap:12px;padding:13px 16px">' +
+        '<div style="width:38px;height:38px;border-radius:50%;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">'+ic(a.approved_by||a.from_email)+'</div>' +
+        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.subject+'</div>' +
+        '<div style="font-size:11px;color:var(--t3);font-family:var(--fm)">'+(a.approved_by||a.from_email)+' · '+new Date(a.received_at).toLocaleString('en-IN')+'</div></div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">'+tag(a.approval_type||'General','tb')+'</div></div>' +
+        '<div style="padding:8px 16px;background:var(--bg3);border-top:1px solid rgba(71,54,254,0.05);display:flex;gap:7px">' +
+        (a.pdf_drive_id?'<a href="https://drive.google.com/file/d/'+a.pdf_drive_id+'/view" target="_blank" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#FFF1F3;border:1px solid #FFD0D6;color:var(--red);border-radius:6px;font-size:11px;font-weight:600;text-decoration:none" onclick="event.stopPropagation()">📕 Email PDF proof</a>':'<span style="font-size:11px;color:var(--t4)">No PDF saved</span>') +
+        '</div></div>';
+    }).join('');
+    set('pg-approvals',html);
+  } catch(e){set('pg-approvals','<div class="lp">'+e.message+'</div>');}
+}
+function openApDrawer(enc){
+  var a=JSON.parse(decodeURIComponent(enc));
+  document.getElementById('dtitle').textContent=a.subject;
+  document.getElementById('dmeta').textContent=(a.approved_by||a.from_email)+' · '+new Date(a.received_at).toLocaleString('en-IN');
+  document.getElementById('dbody').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:13px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:14px">'+
+    infoCell('From',a.approved_by||a.from_email)+infoCell('Email',a.from_email)+
+    infoCell('Date',new Date(a.received_at).toLocaleString('en-IN'))+infoCell('Type',a.approval_type||'General')+
+    infoCell('Attachments',(a.attachments_count||0)+' files')+infoCell('PDF saved',a.pdf_drive_id?'✓ In Drive':'—')+
+    '</div>';
+  document.getElementById('dfooter').innerHTML=
+    (a.pdf_drive_id?'<a href="https://drive.google.com/file/d/'+a.pdf_drive_id+'/view" target="_blank" class="btn" style="background:#FFF1F3;border-color:#FFD0D6;color:var(--red);font-weight:600;text-decoration:none">📕 PDF proof</a>':'')+
+    '<button class="btn" onclick="closeDrawer()" style="margin-left:auto">Close</button>';
+  openDrawer();
 }
 
-async function toggleRule(id, active) {
-  try {
-    const resp = await postData('toggle_rule', { rule_id:id, is_active:!active });
-    if (resp.ok) { toast((resp.rule_name||id)+' '+(resp.is_active?'activated':'paused'),'green'); loadRules(); }
-  } catch(e) { toast('Failed','red'); }
+// ── UPLOAD ────────────────────────────────────────────────
+function renderUpload(){
+  set('pg-upload','<div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">'+
+    '<div><div class="card"><div class="ch"><div class="ct">Upload document</div></div><div class="cb">'+
+    '<div id="dz" style="padding:32px;text-align:center;cursor:pointer;border:2px dashed var(--b2);border-radius:14px;transition:all 0.2s" ondragover="event.preventDefault();this.style.background=\'var(--bd)\';this.style.borderColor=\'var(--brand)\'" ondragleave="this.style.background=\'\';this.style.borderColor=\'var(--b2)\'" ondrop="dzDrop(event)" onclick="document.getElementById(\'fi\').click()">'+
+    '<input type="file" id="fi" multiple accept=".pdf,.png,.jpg,.xlsx,.xls,.csv,.docx" style="display:none" onchange="handleFiles(this.files)">'+
+    '<div style="font-size:28px;margin-bottom:10px">📎</div><div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:5px">Drop files or click to browse</div>'+
+    '<div style="font-size:12px;color:var(--t3)">PDF · Image · Excel · CSV · Word</div></div>'+
+    '<div id="fl" style="margin-top:10px"></div></div></div>'+
+    '<div class="card"><div class="ch"><div class="ct">File details</div></div><div class="cb">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div class="fg"><label class="fl">Category *</label><select class="fi" id="uc" onchange="updateSub2()"><option value="">Select</option><option value="01_Darwinbox">Darwinbox</option><option value="02_Medical">Medical</option><option value="03_Compliance">Compliance</option><option value="05_Manual">Documents</option></select></div>'+
+    '<div class="fg"><label class="fl">Sub-category *</label><select class="fi" id="us" disabled><option>Select category first</option></select></div>'+
+    '<div class="fg" style="grid-column:1/-1"><label class="fl">Document name *</label><input class="fi" id="un" placeholder="e.g. Leave Policy FY25-26"></div>'+
+    '<div class="fg"><label class="fl">FY *</label><select class="fi" id="ufy"><option value="FY2025-26">FY 2025-26</option><option value="FY2024-25">FY 2024-25</option></select></div>'+
+    '<div class="fg"><label class="fl">Date</label><input class="fi" id="ud" type="date"></div>'+
+    '<div class="fg" style="grid-column:1/-1"><label class="fl">Notes</label><textarea class="fi" id="udes" rows="2" placeholder="Optional notes…"></textarea></div>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:12px">'+
+    '<button class="btn p" onclick="submitUpload()" style="padding:10px 18px;font-size:13px">Upload to Drive</button>'+
+    '<button class="btn" onclick="resetUpload()">Reset</button>'+
+    '<span id="us2" style="font-size:12px;color:var(--t3);font-family:var(--fm)"></span>'+
+    '</div></div></div>'+
+    '<div><div class="card"><div class="ch"><div class="ct">Drive path</div></div><div class="cb" style="font-size:11px;font-family:var(--fm);color:var(--t2);line-height:2">'+
+    '📁 HR_Audit_Portal /<br>&nbsp;&nbsp;📁 <span id="pp-fy2" style="color:var(--brand);font-weight:700">'+FY+'</span> /<br>'+
+    '&nbsp;&nbsp;&nbsp;&nbsp;📁 <span id="pp-cat2" style="color:var(--t4)">← category</span> /<br>'+
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📁 <span id="pp-sub2" style="color:var(--t4)">← sub-cat</span> /<br>'+
+    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;📄 <span id="pp-file2" style="color:var(--t4)">file_timestamp.ext</span></div></div>'+
+    '</div></div>');
 }
-
-async function postData(action, body) {
-  if (!WEB_APP_URL) throw new Error('No Web App URL');
-  const resp = await fetch(WEB_APP_URL, {
-    method:'POST',
-    body: JSON.stringify({ action, ...body }),
+function dzDrop(e){e.preventDefault();document.getElementById('dz').style.background='';document.getElementById('dz').style.borderColor='var(--b2)';handleFiles(e.dataTransfer.files);}
+function handleFiles(files){
+  var ok=['pdf','png','jpg','jpeg','xlsx','xls','csv','doc','docx'];
+  Array.from(files).forEach(function(f){
+    var ext=f.name.split('.').pop().toLowerCase();
+    if(!ok.includes(ext)||UPLOAD_FILES.find(function(x){return x.name===f.name;})) return;
+    UPLOAD_FILES.push(f);
   });
-  return resp.json();
+  var icons={pdf:'📕',xlsx:'📗',xls:'📗',csv:'📋',png:'🖼',jpg:'🖼',docx:'📘'};
+  var fl=document.getElementById('fl');
+  if(fl) fl.innerHTML=UPLOAD_FILES.map(function(f,i){
+    var ext=f.name.split('.').pop().toLowerCase();
+    var sz=f.size>1048576?(f.size/1048576).toFixed(1)+' MB':Math.round(f.size/1024)+' KB';
+    return '<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--bg3);border:1px solid var(--b1);border-radius:9px;margin-bottom:6px">'+
+      '<span style="font-size:18px">'+(icons[ext]||'📄')+'</span><span style="font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.name+'</span>'+
+      '<span style="font-size:11px;color:var(--t3);font-family:var(--fm)">'+sz+'</span>'+
+      '<button onclick="UPLOAD_FILES.splice('+i+',1);handleFiles([])" style="background:none;border:none;cursor:pointer;color:var(--t4);font-size:16px;line-height:1;padding:0">×</button></div>';
+  }).join('');
+}
+function updateSub2(){
+  var cat=document.getElementById('uc').value;
+  var sub=document.getElementById('us');
+  var catN={'01_Darwinbox':'Darwinbox','02_Medical':'Medical','03_Compliance':'Compliance','05_Manual':'Documents'};
+  var pc=document.getElementById('pp-cat2');
+  if(!cat||!SUBCATS[cat]){sub.innerHTML='<option>Select category first</option>';sub.disabled=true;if(pc){pc.textContent='← category';pc.style.color='var(--t4)';}return;}
+  sub.disabled=false;
+  sub.innerHTML='<option value="">Select</option>'+SUBCATS[cat].map(function(s){return '<option value="'+s+'">'+s.replace(/_/g,' ')+'</option>';}).join('');
+  if(pc){pc.textContent=(catN[cat]||cat)+' /';pc.style.color='var(--t1)';}
+  sub.onchange=function(){var ps=document.getElementById('pp-sub2');if(ps){ps.textContent=sub.value?sub.value.replace(/_/g,' ')+' /':'← sub-cat';ps.style.color=sub.value?'var(--t1)':'var(--t4)';}};
+}
+async function submitUpload(){
+  var name=document.getElementById('un').value.trim();
+  var cat=document.getElementById('uc').value;
+  var sub=document.getElementById('us').value;
+  var fy=document.getElementById('ufy').value;
+  var st=document.getElementById('us2');
+  if(!UPLOAD_FILES.length){st.textContent='⚠ Select a file';st.style.color='var(--amber)';return;}
+  if(!cat||!sub||!name){st.textContent='⚠ Fill required fields';st.style.color='var(--amber)';return;}
+  // Note: Actual file upload to Drive requires Apps Script
+  // This logs the metadata to Supabase; file upload happens via Apps Script
+  st.innerHTML='<div class="spin" style="display:inline-block"></div> Saving…';
+  try {
+    var id='UP'+Date.now().toString().slice(-10);
+    var f=UPLOAD_FILES[0];
+    var sz=f.size>1048576?(f.size/1048576).toFixed(1)+' MB':Math.round(f.size/1024)+' KB';
+    await sbPost('manual_uploads',{
+      upload_id:id,fy:fy,uploaded_by:USER.name,uploader_email:USER.email,
+      report_name:name,category:cat,sub_folder:sub,original_filename:f.name,
+      file_size:sz,description:document.getElementById('udes').value.trim(),
+    });
+    await logAudit('upload','Manual upload',name+' — '+cat+'/'+sub+' — '+sz);
+    st.textContent='✓ Metadata saved. Ask admin to upload file to Drive.';
+    st.style.color='var(--green)';
+    UPLOAD_FILES=[];handleFiles([]);
+  } catch(e){st.textContent='✗ '+e.message;st.style.color='var(--red)';}
+}
+function resetUpload(){UPLOAD_FILES=[];renderUpload();}
+
+// ── SYNC RULES ────────────────────────────────────────────
+async function loadRules(){
+  loading('pg-rules');
+  try {
+    RULES = await sbGet('sync_rules','order=rule_id.asc') || [];
+    var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+      '<div style="font-size:18px;font-weight:800;color:var(--t1)">Sync Rules</div>'+
+      '<button class="btn p" onclick="openRuleModal()">+ Add rule</button></div>';
+    if(!RULES.length){html+=empty('⚙️','No rules yet','Add a rule to start syncing Darwinbox reports');set('pg-rules',html);return;}
+    html+=RULES.map(function(r){
+      return '<div class="card"><div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--b1)">'+
+        '<span style="font-size:10px;font-family:var(--fm);font-weight:700;color:#fff;padding:2px 7px;border-radius:5px;background:var(--brand)">'+r.rule_id+'</span>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--t1)">'+r.rule_name+'</div>'+
+        '<div style="font-size:11px;color:var(--t3);font-family:var(--fm)">keyword: '+r.subject_exact+'</div></div>'+
+        tag(r.is_active?'active':'paused',r.is_active?'tg':'ta')+
+        '<label class="toggle"><input type="checkbox" '+(r.is_active?'checked':'')+' onchange="toggleRule(\''+r.id+'\',this.checked)"><span class="tsl"></span></label>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg3)">'+
+        '<span style="font-size:11px;color:var(--t3);font-family:var(--fm);flex:1">'+r.category.replace(/^\d+_/,'')+' / '+r.sub_folder.replace(/_/g,' ')+'</span>'+
+        '<button class="btn" style="font-size:11px;padding:4px 9px" onclick="openRuleModal(\''+r.id+'\')">✏ Edit</button>'+
+        '</div></div>';
+    }).join('');
+    html+='<div style="margin-top:6px"><button class="btn" style="width:100%;justify-content:center;font-size:13px;padding:11px;border-style:dashed" onclick="openRuleModal()">+ Add new sync rule</button></div>';
+    set('pg-rules',html);
+  } catch(e){set('pg-rules','<div class="lp">'+e.message+'</div>');}
+}
+async function toggleRule(id,active){try{await sbPatch('sync_rules','id=eq.'+id,{is_active:active,last_modified:new Date().toISOString()});loadRules();}catch(e){alert('Error: '+e.message);}}
+function openRuleModal(editId){
+  var r=editId?RULES.find(function(x){return x.id===editId;}):null;
+  document.getElementById('mtitle').textContent=r?'Edit rule':'Add sync rule';
+  document.getElementById('mbody').innerHTML=
+    '<div class="fg"><label class="fl">Rule name *</label><input class="fi" id="rm-name" value="'+(r?r.rule_name:'')+'" placeholder="e.g. R003 Leave Reports"></div>'+
+    '<div class="fg"><label class="fl">Email subject keyword *</label><input class="fi" id="rm-kw" value="'+(r?r.subject_exact:'')+'" placeholder="e.g. Leave_Report_Monthly"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div class="fg"><label class="fl">Category *</label><select class="fi" id="rm-cat" onchange="updateRMSub()"><option value="">Select</option><option value="01_Darwinbox"'+(r&&r.category==='01_Darwinbox'?' selected':'')+'>Darwinbox</option><option value="02_Medical"'+(r&&r.category==='02_Medical'?' selected':'')+'>Medical</option><option value="03_Compliance"'+(r&&r.category==='03_Compliance'?' selected':'')+'>Compliance</option><option value="05_Manual"'+(r&&r.category==='05_Manual'?' selected':'')+'>Documents</option></select></div>'+
+    '<div class="fg"><label class="fl">Sub-category *</label><select class="fi" id="rm-sub"><option value="'+(r?r.sub_folder:'')+'">'+((r?r.sub_folder:'')||'Select category first')+'</option></select></div>'+
+    '<div class="fg"><label class="fl">File prefix</label><input class="fi" id="rm-pfx" value="'+(r?r.file_prefix||'':'')+'" placeholder="e.g. LeaveReport"></div>'+
+    '<div class="fg"><label class="fl">Notes</label><input class="fi" id="rm-notes" value="'+(r?r.notes||'':'')+'"></div>'+
+    '</div>';
+  if(r) setTimeout(function(){var s=document.getElementById('rm-cat');if(s){s.value=r.category;updateRMSub(r.sub_folder);}},50);
+  document.getElementById('mfoot').innerHTML='<button class="btn" onclick="closeModal()">Cancel</button><button class="btn p" onclick="saveRule(\''+( editId||'')+'\')">Save</button>';
+  openModal();
+}
+function updateRMSub(sel){
+  var cat=document.getElementById('rm-cat').value;
+  var sub=document.getElementById('rm-sub');
+  if(!cat||!SUBCATS[cat]){sub.innerHTML='<option>Select category first</option>';sub.disabled=true;return;}
+  sub.disabled=false;
+  sub.innerHTML='<option value="">Select</option>'+SUBCATS[cat].map(function(s){return '<option value="'+s+'"'+(sel===s?' selected':'')+'>'+s.replace(/_/g,' ')+'</option>';}).join('');
+}
+async function saveRule(editId){
+  var name=document.getElementById('rm-name').value.trim();
+  var kw=document.getElementById('rm-kw').value.trim();
+  var cat=document.getElementById('rm-cat').value;
+  var sub=document.getElementById('rm-sub').value;
+  if(!name||!kw||!cat||!sub){alert('Fill all required fields');return;}
+  var body={rule_name:name,subject_exact:kw,category:cat,sub_folder:sub,file_prefix:document.getElementById('rm-pfx').value.trim(),notes:document.getElementById('rm-notes').value.trim(),last_modified:new Date().toISOString()};
+  try {
+    if(editId){await sbPatch('sync_rules','id=eq.'+editId,body);}
+    else{var id='R'+String(Date.now()).slice(-6);await sbPost('sync_rules',Object.assign({rule_id:id,is_active:true},body));}
+    closeModal();loadRules();
+  } catch(e){alert('Error: '+e.message);}
 }
 
-// ═══════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════
-function setHealth(dot, txt, sub) {
-  document.getElementById('hc-dot').className = 'dot '+dot;
-  document.getElementById('hc-txt').textContent = txt;
-  document.getElementById('hc-sub').textContent = sub||'';
+// ── SYNC LOG ──────────────────────────────────────────────
+async function loadSyncLog(){
+  loading('pg-synclog');
+  try {
+    var data=await sbGet('sync_log','order=synced_at.desc&limit=100');
+    if(!data||!data.length){set('pg-synclog',card('Sync Log','',empty('📋','No log entries yet','')));return;}
+    var errors=data.filter(function(l){return l.status==='error';});
+    var html=errors.length?'<div class="alert red">⚠ <strong>'+errors.length+' error'+(errors.length!==1?'s':'')+' in sync log</strong></div>':'';
+    html+='<div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Time</th><th>Rule</th><th>File</th><th>Size</th><th>Status</th><th>Detail</th></tr></thead><tbody>'+
+    data.map(function(l){
+      return '<tr><td style="font-family:var(--fm);font-size:11px;color:var(--t3)">'+new Date(l.synced_at).toLocaleString('en-IN')+'</td>'+
+        '<td><span style="font-size:10px;font-family:var(--fm);font-weight:700;color:#fff;padding:2px 6px;border-radius:4px;background:var(--brand)">'+l.rule_id+'</span></td>'+
+        '<td style="font-size:11px;font-weight:600;color:var(--t1);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(l.file_name||'—')+'</td>'+
+        '<td style="font-family:var(--fm);font-size:11px">'+(l.file_size||'—')+'</td>'+
+        '<td>'+tag(l.status,l.status==='error'?'tr':l.status==='skipped'?'ta':'tg')+'</td>'+
+        '<td style="font-size:11px;color:'+(l.status==='error'?'var(--red)':'var(--t3)')+'">'+(l.status==='error'?l.error_message||'':'Saved')+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+    set('pg-synclog',html);
+  } catch(e){set('pg-synclog','<div class="lp">'+e.message+'</div>');}
 }
 
-function setRefreshing(on) {
-  const btn = document.getElementById('refresh-btn');
-  btn.innerHTML = on
-    ? '<div class="spin" style="width:11px;height:11px;border-width:1.5px;margin:0"></div> Loading…'
-    : '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Refresh';
+// ── OBSERVATIONS ──────────────────────────────────────────
+async function loadObs(){
+  loading('pg-obs');
+  try {
+    var data=await sbGet('observations','fy=eq.'+FY+'&order=raised_at.desc');
+    var open=(data||[]).filter(function(o){return o.status!=='resolved';}).length;
+    var nboc=document.getElementById('nb-oc');
+    if(nboc){nboc.textContent=open;nboc.style.display=open?'':'none';}
+    var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+      '<div style="font-size:18px;font-weight:800;color:var(--t1)">Observations</div>'+
+      '<button class="btn p" onclick="openObsModal()">+ Raise observation</button></div>';
+    if(!data||!data.length){html+=empty('🔍','No observations yet','Raise an observation using the button above');set('pg-obs',html);return;}
+    var sc={critical:'#FF4444',major:'#F5A623',minor:'var(--brand)'};
+    html+=data.map(function(o){
+      return '<div class="card" style="cursor:pointer" onclick="openObsDrawer(\''+encodeURIComponent(JSON.stringify(o))+'\')">'+
+        '<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px">'+
+        '<div style="width:4px;background:'+(sc[o.severity]||'var(--t3)')+';border-radius:2px;align-self:stretch;min-height:40px;flex-shrink:0"></div>'+
+        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:3px">'+o.title+'</div>'+
+        '<div style="font-size:11px;color:var(--t3);font-family:var(--fm)">'+o.raised_by+' · '+new Date(o.raised_at).toLocaleString('en-IN')+'</div>'+
+        '<div style="margin-top:7px;display:flex;gap:6px">'+
+        tag(o.severity,o.severity==='critical'?'tr':o.severity==='major'?'ta':'tb')+
+        tag(o.status==='resolved'?'Resolved':o.status==='inprogress'?'In Progress':'Open',o.status==='resolved'?'tg':o.status==='inprogress'?'ta':'tr')+
+        tag(o.category,'tb')+'</div></div></div></div>';
+    }).join('');
+    set('pg-obs',html);
+  } catch(e){set('pg-obs','<div class="lp">'+e.message+'</div>');}
+}
+function openObsModal(){
+  document.getElementById('mtitle').textContent='Raise observation';
+  document.getElementById('mbody').innerHTML=
+    '<div class="fg"><label class="fl">Title *</label><input class="fi" id="om-t" placeholder="Short description of the issue"></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'+
+    '<div class="fg"><label class="fl">Severity *</label><select class="fi" id="om-s"><option value="">Select</option><option value="critical">🔴 Critical</option><option value="major">🟡 Major</option><option value="minor">🔵 Minor</option></select></div>'+
+    '<div class="fg"><label class="fl">Category *</label><select class="fi" id="om-c"><option value="">Select</option><option>Darwinbox</option><option>Medical</option><option>Compliance</option><option>Documents</option><option>Approvals</option><option>Other</option></select></div>'+
+    '</div>'+
+    '<div class="fg"><label class="fl">Description *</label><textarea class="fi" id="om-d" rows="4" placeholder="What is missing or incorrect…"></textarea></div>'+
+    '<div class="fg"><label class="fl">Linked file (optional)</label><input class="fi" id="om-f" placeholder="e.g. Leave policy, March attendance"></div>';
+  document.getElementById('mfoot').innerHTML='<button class="btn" onclick="closeModal()">Cancel</button><button class="btn p" onclick="saveObs()">Raise observation</button>';
+  openModal();
+}
+async function saveObs(){
+  var title=document.getElementById('om-t').value.trim();
+  var sev=document.getElementById('om-s').value;
+  var cat=document.getElementById('om-c').value;
+  var desc=document.getElementById('om-d').value.trim();
+  if(!title||!sev||!cat||!desc){alert('Fill all required fields');return;}
+  try{
+    var id='OB'+Date.now().toString().slice(-10);
+    await sbPost('observations',{obs_id:id,title:title,severity:sev,category:cat,description:desc,linked_file_id:document.getElementById('om-f').value.trim(),fy:FY,raised_by:USER.name,raised_by_email:USER.email,status:'open'});
+    await logAudit('observation','Observation raised',title+' — '+sev);
+    closeModal();loadObs();
+  }catch(e){alert('Error: '+e.message);}
+}
+function openObsDrawer(enc){
+  var o=JSON.parse(decodeURIComponent(enc));
+  document.getElementById('dtitle').textContent=o.title;
+  document.getElementById('dmeta').textContent='Raised by '+o.raised_by+' · '+new Date(o.raised_at).toLocaleString('en-IN');
+  document.getElementById('dbody').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:13px;background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:14px">'+
+    infoCell('Severity',tag(o.severity,o.severity==='critical'?'tr':o.severity==='major'?'ta':'tb'))+
+    infoCell('Status',tag(o.status,'tg'))+infoCell('Category',o.category)+infoCell('Raised by',o.raised_by)+
+    '</div>'+
+    '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Description</div>'+
+    '<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);padding:13px;font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:14px">'+o.description+'</div>'+
+    '<div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px">Reply</div>'+
+    '<textarea class="fi" id="or" rows="3" placeholder="Write a reply…" style="margin-bottom:8px"></textarea>'+
+    '<select class="fi" id="os"><option value="">Keep status</option><option value="inprogress">Mark In Progress</option><option value="resolved">Mark Resolved ✓</option></select>';
+  document.getElementById('dfooter').innerHTML='<button class="btn p" onclick="submitReply(\''+o.obs_id+'\')">Send reply</button><button class="btn" onclick="closeDrawer()" style="margin-left:auto">Close</button>';
+  openDrawer();
+}
+async function submitReply(obsId){
+  var msg=document.getElementById('or').value.trim();
+  var status=document.getElementById('os').value;
+  if(!msg){alert('Write a reply first');return;}
+  try{
+    await sbPost('obs_replies',{obs_id:obsId,replied_by:USER.name,reply_email:USER.email,message:msg,type:status==='resolved'?'resolved':'reply'});
+    if(status) await sbPatch('observations','obs_id=eq.'+obsId,{status:status,resolved_by:USER.name,resolved_at:new Date().toISOString(),resolution_note:msg});
+    await logAudit('observation',status==='resolved'?'Observation resolved':'Observation reply',msg.slice(0,80));
+    closeDrawer();loadObs();
+  }catch(e){alert('Error: '+e.message);}
 }
 
-function clearForm(...ids) {
-  ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+// ── AUDIT LOG ─────────────────────────────────────────────
+async function loadAudit(){
+  loading('pg-audit');
+  try{
+    var data=await sbGet('audit_log','order=created_at.desc&limit=100');
+    if(!data||!data.length){set('pg-audit',card('Audit Log','',empty('🗂️','No events yet','')));return;}
+    var ico={login:'🔐',download:'⬇️',upload:'📎',sync:'🔄',observation:'🔍',settings:'⚙️',user:'👥',approval:'✉️'};
+    var byDate={};
+    data.forEach(function(e){var d=new Date(e.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});if(!byDate[d])byDate[d]=[];byDate[d].push(e);});
+    var html='<div class="card" style="overflow:hidden">';
+    Object.keys(byDate).forEach(function(date){
+      html+='<div style="padding:8px 16px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--b1);background:var(--bg3)">'+date+'</div>';
+      byDate[date].forEach(function(e){
+        html+='<div class="row" style="padding:9px 16px"><div style="width:30px;height:30px;border-radius:8px;background:var(--bd);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">'+(ico[e.type]||'📋')+'</div>'+
+          '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--t1)">'+e.action+'</div><div style="font-size:11px;color:var(--t3);font-family:var(--fm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e.detail+'</div></div>'+
+          '<div style="text-align:right;flex-shrink:0"><div style="font-size:11px;font-weight:600;color:var(--t2)">'+e.user_name+'</div><div style="font-size:10px;color:var(--t4);font-family:var(--fm)">'+new Date(e.created_at).toLocaleTimeString('en-IN')+'</div></div></div>';
+      });
+    });
+    html+='</div>';
+    set('pg-audit',html);
+  }catch(e){set('pg-audit','<div class="lp">'+e.message+'</div>');}
 }
 
-let _toastT;
-function toast(msg, type) {
-  const c={green:'var(--green)',amber:'var(--amber)',red:'var(--red)',blue:'var(--blue)'};
-  document.getElementById('td').style.background = c[type]||c.blue;
-  document.getElementById('tm').textContent = msg;
-  const t = document.getElementById('toast');
-  t.classList.add('show'); clearTimeout(_toastT);
-  _toastT = setTimeout(()=>t.classList.remove('show'),3800);
+// ── USERS ─────────────────────────────────────────────────
+async function loadUsers(){
+  loading('pg-users');
+  try{
+    var data=await sbGet('users','order=added_on.asc');
+    var html='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+      '<div style="font-size:18px;font-weight:800;color:var(--t1)">User Management</div>'+
+      '<button class="btn p" onclick="openUserModal()">+ Add user</button></div>';
+    if(!data||!data.length){html+=empty('👥','No users yet','');set('pg-users',html);return;}
+    html+='<div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Last login</th><th>Status</th><th></th></tr></thead><tbody>'+
+    data.map(function(u){
+      return '<tr>'+
+        '<td><div style="display:flex;align-items:center;gap:9px"><div style="width:32px;height:32px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+ic(u.name)+'</div><div style="font-size:12px;font-weight:600;color:var(--t1)">'+u.name+'</div></div></td>'+
+        '<td style="font-size:11px;font-family:var(--fm);color:var(--t2)">'+u.email+'</td>'+
+        '<td>'+tag(u.role,'tb')+'</td>'+
+        '<td style="font-size:11px;font-family:var(--fm);color:var(--t3)">'+(u.last_login?new Date(u.last_login).toLocaleString('en-IN'):'Never')+'</td>'+
+        '<td>'+tag(u.is_active?'active':'inactive',u.is_active?'tg':'ta')+'</td>'+
+        '<td><button class="btn" style="font-size:11px;padding:4px 9px" onclick="openUserModal(\''+encodeURIComponent(JSON.stringify(u))+'\')">✏ Edit</button></td>'+
+        '</tr>';
+    }).join('')+'</tbody></table></div>';
+    set('pg-users',html);
+  }catch(e){set('pg-users','<div class="lp">'+e.message+'</div>');}
+}
+function openUserModal(enc){
+  var u=enc?JSON.parse(decodeURIComponent(enc)):null;
+  document.getElementById('mtitle').textContent=u?'Edit — '+u.name:'Add user';
+  document.getElementById('mbody').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'+
+    '<div class="fg"><label class="fl">Full name *</label><input class="fi" id="um-n" value="'+(u?u.name:'')+'" placeholder="e.g. Ravi Mehta"></div>'+
+    '<div class="fg"><label class="fl">Work email *</label><input class="fi" id="um-e" type="email" value="'+(u?u.email:'')+'" placeholder="name@cars24.com"'+(u?' readonly':'')+'></div>'+
+    '<div class="fg"><label class="fl">Role</label><select class="fi" id="um-r"><option value="Admin"'+(u&&u.role==='Admin'?' selected':'')+'>Admin</option><option value="Sub-admin"'+(u&&u.role==='Sub-admin'?' selected':'')+'>Sub-admin</option><option value="Auditor"'+(u&&u.role==='Auditor'?' selected':'')+'>Auditor</option><option value="Viewer"'+(u&&u.role==='Viewer'?' selected':'')+'>Viewer</option></select></div>'+
+    '<div class="fg"><label class="fl">Status</label><select class="fi" id="um-s"><option value="true"'+(u&&u.is_active?' selected':'')+'>Active</option><option value="false"'+(u&&!u.is_active?' selected':'')+'>Inactive</option></select></div>'+
+    '</div>'+
+    '<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:9px">Permissions</div>'+
+    '<div style="border:1px solid var(--b1);border-radius:var(--r);overflow:hidden">'+
+    PERMS.map(function(p){
+      var checked=u?u[p.key]:false;
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--b1)">'+
+        '<div><div style="font-size:12px;color:var(--t1);font-weight:500">'+p.label+'</div><div style="font-size:10px;color:var(--t3)">'+p.sub+'</div></div>'+
+        '<label class="toggle"><input type="checkbox" id="p-'+p.key+'"'+(checked?' checked':'')+' '+(u&&u.email==='vivek.naiwal@cars24.com'?' checked disabled':'')+'><span class="tsl"></span></label></div>';
+    }).join('')+'</div>'+
+    '<div style="display:flex;gap:6px;margin-top:10px"><button class="btn" onclick="PERMS.forEach(function(p){var e=document.getElementById(\'p-\'+p.key);if(e&&!e.disabled)e.checked=true;})">All</button><button class="btn" onclick="PERMS.forEach(function(p){var e=document.getElementById(\'p-\'+p.key);if(e&&!e.disabled)e.checked=false;})">None</button></div>';
+  document.getElementById('mfoot').innerHTML='<button class="btn" onclick="closeModal()">Cancel</button><button class="btn p" onclick="saveUser(\''+( u?encodeURIComponent(JSON.stringify(u)):'')+'\')">'+(u?'Save':'Add user')+'</button>';
+  openModal();
+}
+async function saveUser(encU){
+  var name=document.getElementById('um-n').value.trim();
+  var email=document.getElementById('um-e').value.trim().toLowerCase();
+  if(!name||!email){alert('Name and email required');return;}
+  var body={name:name,role:document.getElementById('um-r').value,is_active:document.getElementById('um-s').value==='true'};
+  PERMS.forEach(function(p){var e=document.getElementById('p-'+p.key);body[p.key]=e?e.checked:false;});
+  try{
+    if(encU){
+      var u=JSON.parse(decodeURIComponent(encU));
+      await sbPatch('users','id=eq.'+u.id,body);
+    } else {
+      body.user_id='U'+Date.now().toString().slice(-8);
+      body.email=email;
+      body.added_by=USER.email;
+      await sbPost('users',body);
+      await logAudit('user','User added',name+' — '+email+' — '+body.role);
+    }
+    closeModal();loadUsers();
+  }catch(e){alert('Error: '+e.message);}
 }
 
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-window.addEventListener('load', () => {
-  buildFYPills(activeFY);
-  document.getElementById('cat-pills').innerHTML = '';
-  if (!WEB_APP_URL) {
-    document.getElementById('setup-modal').classList.add('open');
-    setHealth('x','Not connected','Paste Web App URL to connect');
-    document.getElementById('files-list').innerHTML = '<div class="empty"><div class="ei">🔗</div>Connect to get started</div>';
-  } else {
-    loadAll();
+// ── SETTINGS ──────────────────────────────────────────────
+async function loadSettings(){
+  loading('pg-settings');
+  try{
+    var cfg=await sbGet('app_config');
+    var map={};
+    (cfg||[]).forEach(function(c){map[c.key]=c.value;});
+    var cookieSetOn=map.cookie_set_on;
+    var cookieDays=0;
+    if(cookieSetOn){cookieDays=Math.max(0,30-Math.floor((Date.now()-new Date(cookieSetOn))/86400000));}
+    var senders=(map.approval_senders||'').split(',').filter(Boolean).map(function(s){return s.trim();});
+    SENDERS=senders;
+    var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+    '<div>'+card('Darwinbox Cookie','Session for report downloads',
+      '<div style="height:8px;background:var(--b1);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;background:'+(cookieDays>10?'var(--green)':'var(--amber)')+';width:'+Math.min(100,(cookieDays/30)*100)+'%;border-radius:4px;transition:width 0.5s"></div></div>'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:12px"><span style="font-weight:700;color:'+(cookieDays>10?'var(--green)':'var(--amber)')+'">'+(cookieDays>10?'✓ Healthy':'⚠ Expiring soon')+'</span><span style="color:var(--t3);font-family:var(--fm)">'+cookieDays+' days left</span></div>'+
+      '<div style="font-size:11px;color:var(--t2);line-height:1.8;margin-bottom:12px">F12 → Application → Cookies → <code>cars24.darwinbox.com</code> → copy <code>session</code> value → update in Apps Script</div>'+
+      '<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:9px;padding:11px;font-size:11px;color:var(--t3)">Note: Cookie is set in Apps Script (not here). Run <code>SET_DARWINBOX_COOKIE()</code> in Apps Script editor.</div>'
+    )+
+    card('Approval Senders','Auto-captured from these addresses',
+      '<div id="senders-list"></div>'+
+      '<div style="display:flex;gap:8px;margin-top:12px"><input class="fi" id="new-sender" placeholder="name@cars24.com" type="email" style="flex:1"><button class="btn p" onclick="addSender()" style="flex-shrink:0">Add</button></div>'
+    )+
+    '</div>'+
+    '<div>'+card('Portal Info','',
+      hrow('g','Portal URL','hraudit.github.io/ZeroLag')+
+      hrow('g','Database','Supabase (free tier)')+
+      hrow('g','File storage','Google Drive')+
+      hrow('g','Sync engine','Apps Script hourly trigger')+
+      hrow('g','Users',''+(await sbGet('users','select=id')||[]).length+' registered')
+    )+
+    card('How to refresh cookie','',
+      '<div style="display:flex;flex-direction:column;gap:8px">'+
+      '<div style="display:flex;gap:9px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--bd);border:1px solid var(--b2);color:var(--brand);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div><span>Open Chrome → log in to <code>cars24.darwinbox.com</code></span></div>'+
+      '<div style="display:flex;gap:9px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--bd);border:1px solid var(--b2);color:var(--brand);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div><span>F12 → Application → Cookies → copy <code>session</code> value</span></div>'+
+      '<div style="display:flex;gap:9px;font-size:12px"><div style="width:20px;height:20px;border-radius:50%;background:var(--bd);border:1px solid var(--b2);color:var(--brand);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div><span>Apps Script editor → run <code>SET_DARWINBOX_COOKIE()</code> → paste value</span></div>'+
+      '</div>'
+    )+
+    '</div></div>';
+    set('pg-settings',html);
+    renderSenders();
+  }catch(e){set('pg-settings','<div class="lp">'+e.message+'</div>');}
+}
+function renderSenders(){
+  var el=document.getElementById('senders-list');
+  if(!el) return;
+  el.innerHTML=SENDERS.map(function(s,i){
+    return '<div class="row"><div style="width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+s[0].toUpperCase()+'</div><span style="flex:1;font-size:12px;font-weight:500;font-family:var(--fm)">'+s+'</span>'+tag('active','tg')+'<button class="btn" style="font-size:11px;padding:3px 8px;color:var(--red)" onclick="removeSender('+i+')">Remove</button></div>';
+  }).join('');
+}
+async function addSender(){
+  var v=document.getElementById('new-sender').value.trim().toLowerCase();
+  if(!v||!v.includes('@cars24.com')){alert('Enter a valid @cars24.com email');return;}
+  if(SENDERS.includes(v)){alert('Already added');return;}
+  SENDERS.push(v);
+  await sbPost('app_config',{key:'approval_senders',value:SENDERS.join(','),updated_at:new Date().toISOString()});
+  document.getElementById('new-sender').value='';
+  renderSenders();
+}
+async function removeSender(i){
+  if(!confirm('Remove this sender?')) return;
+  SENDERS.splice(i,1);
+  await sbPost('app_config',{key:'approval_senders',value:SENDERS.join(','),updated_at:new Date().toISOString()});
+  renderSenders();
+}
+
+// ── EMAIL INPUT ENTER KEY ─────────────────────────────────
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none'){
+    var btn=document.getElementById('login-btn');
+    if(!btn.disabled) doLogin();
   }
 });
 </script>
