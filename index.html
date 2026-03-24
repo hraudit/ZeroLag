@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<div id="notif-list"></div><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -618,12 +618,12 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
     <div class="nb" id="nb-reports" onclick="nav('reports',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 1.5h6l3 3v9h-9z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8.5 1.5v3h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 6.5h5M4.5 9h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Reports
-      <span class="nb-badge">2</span>
+      <span class="nb-badge" id="nb-reports-ct" style="display:none">0</span>
     </div>
     <div class="nb" id="nb-approvals" onclick="nav('approvals',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 3h11v8.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V3z" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 3l5.5 5 5.5-5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Approval Emails
-      <span class="nb-badge">4</span>
+      <span class="nb-badge" id="nb-approvals-ct" style="display:none">0</span>
     </div>
     <div class="nb" id="nb-upload" onclick="nav('upload',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 9.5V3M4.5 5.5L7 3l2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11.5h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -633,7 +633,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
     <div class="nb" id="nb-rules" onclick="nav('rules',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.8 2.8l1.1 1.1M10.1 10.1l1.1 1.1M2.8 11.2l1.1-1.1M10.1 3.9l1.1-1.1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Sync Rules
-      <span class="nb-badge">2</span>
+      <span class="nb-badge" id="nb-rules-ct" style="display:none">0</span>
     </div>
     <div class="nb" id="nb-synclog" onclick="nav('synclog',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 4h11M1.5 7.5h11M1.5 11h6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -642,7 +642,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
     <div class="nb" id="nb-observations" onclick="nav('observations',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M7 5v3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10.5" r="0.7" fill="currentColor"/></svg>
       Observations
-      <span class="nb-badge amber">3</span>
+      <span class="nb-badge amber" id="nb-obs-ct" style="display:none">0</span>
     </div>
     <div class="nb" id="nb-auditlog" onclick="nav('auditlog',this)">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5h7M3.5 7.5h7M3.5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -710,9 +710,9 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
     </div>
   </div>
 
-  <div class="alert-bar red" id="sync-alert">
+  <div class="alert-bar red" id="sync-alert" style="display:none">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="10" r="0.7" fill="currentColor"/></svg>
-    <span><strong>Sync error:</strong> Employee Master failed at 14:23 today. <span style="text-decoration:underline;cursor:pointer" onclick="nav('synclog',document.getElementById('nb-synclog'))">View log →</span></span>
+    <span><strong>Sync error:</strong> <span id="sync-alert-txt">checking…</span> <span style="text-decoration:underline;cursor:pointer" onclick="nav('synclog',document.getElementById('nb-synclog'))">View log →</span></span>
     <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:currentColor;cursor:pointer;font-size:16px;line-height:1;margin-left:auto;opacity:0.6">×</button>
   </div>
 
@@ -838,10 +838,10 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
   </div>
   <!-- Stats -->
   <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-    <div class="r-stat on" id="rs-all" onclick="setRCat('all',this)"><div class="r-stat-n">2</div><div class="r-stat-l">All</div></div>
-    <div class="r-stat" id="rs-01" onclick="setRCat('01_Darwinbox',this)"><div class="r-stat-n">2</div><div class="r-stat-l">Darwinbox</div></div>
-    <div class="r-stat" id="rs-02" onclick="setRCat('02_Medical',this)"><div class="r-stat-n">0</div><div class="r-stat-l">Medical</div></div>
-    <div class="r-stat" id="rs-03" onclick="setRCat('03_Compliance',this)"><div class="r-stat-n">0</div><div class="r-stat-l">Compliance</div></div>
+    <div class="r-stat on" id="rs-all" onclick="setRCat('all',this)"><div class="r-stat-n">—</div><div class="r-stat-l">All</div></div>
+    <div class="r-stat" id="rs-01" onclick="setRCat('01_Darwinbox',this)"><div class="r-stat-n">—</div><div class="r-stat-l">Darwinbox</div></div>
+    <div class="r-stat" id="rs-02" onclick="setRCat('02_Medical',this)"><div class="r-stat-n">—</div><div class="r-stat-l">Medical</div></div>
+    <div class="r-stat" id="rs-03" onclick="setRCat('03_Compliance',this)"><div class="r-stat-n">—</div><div class="r-stat-l">Compliance</div></div>
     <div class="r-stat" id="rs-04" onclick="setRCat('04_Approvals',this)"><div class="r-stat-n">0</div><div class="r-stat-l">Approvals</div></div>
     <div class="r-stat" id="rs-05" onclick="setRCat('05_Manual',this)"><div class="r-stat-n">0</div><div class="r-stat-l">Documents</div></div>
   </div>
@@ -2007,11 +2007,48 @@ async function initR() {
   if (el) el.style.display = 'flex';
   try { await loadRDATA(); } catch(e) { console.error('Reports load failed:', e); }
   if (el) el.style.display = 'none';
+  // Update tab counts from live RDATA
+  var cats = {'01_Darwinbox':0,'02_Medical':0,'03_Compliance':0,'04_Approvals':0,'05_Manual':0};
+  RDATA.forEach(function(f){ if(cats[f.cat]!==undefined) cats[f.cat]++; });
+  var allEl = document.getElementById('rs-all');
+  if(allEl) allEl.querySelector('.r-stat-n').textContent = RDATA.length;
+  var catMap = {'01_Darwinbox':'rs-01','02_Medical':'rs-02','03_Compliance':'rs-03','04_Approvals':'rs-04','05_Manual':'rs-05'};
+  Object.keys(catMap).forEach(function(cat){
+    var el2 = document.getElementById(catMap[cat]);
+    if(el2) el2.querySelector('.r-stat-n').textContent = cats[cat]||0;
+  });
+  // Update count text
+  var countEl = document.getElementById('r-count-txt');
+  if(countEl) countEl.textContent = RDATA.length + ' files in Drive · ' + currentFY;
+  // Update sidebar badge
+  var nbrc = document.getElementById('nb-rc');
+  if(nbrc && RDATA.length > 0) { nbrc.textContent = RDATA.length; nbrc.style.display = ''; }
+  // Check for sync errors
+  var lastErr = null;
+  try {
+    var errLog = await sbGet('sync_log', 'status=eq.error&order=synced_at.desc&limit=1');
+    if(errLog && errLog.length) lastErr = errLog[0];
+  } catch(e) {}
+  var alertEl = document.getElementById('r-sync-alert');
+  if(alertEl) {
+    if(lastErr) {
+      alertEl.style.display = 'flex';
+      var alertTxt = alertEl.querySelector('span');
+            if(alertTxt) alertTxt.innerHTML = "<strong>Sync error:</strong> " + lastErr.rule_name + " \u2014 " + lastErr.error_message + ". <a style=\"text-decoration:underline;cursor:pointer\" onclick=\"nav('synclog',document.getElementById('nb-synclog'))\">View log \u2192</a>";
+    } else {
+      alertEl.style.display = 'none';
+    }
+  }
+  // Update reports sidebar badge
+  var rBadge = document.getElementById('nb-reports-ct');
+  if(rBadge && RDATA.length > 0) { rBadge.textContent = RDATA.length; rBadge.style.display = ''; }
   renderRSec();
 }
 
 async function initAp() {
   try { await loadAPDATA(); } catch(e) { console.error('Approvals load failed:', e); }
+  var apBadge = document.getElementById('nb-approvals-ct');
+  if(apBadge && APDATA.length > 0) { apBadge.textContent = APDATA.length; apBadge.style.display = ''; }
   renderAp();
 }
 
@@ -2027,11 +2064,17 @@ async function initAL() {
 
 async function initObs() {
   try { await loadOBSDATA(); } catch(e) { console.error('Obs load failed:', e); }
+  var openObs = OBS_DATA.filter(function(o){return o.status !== 'resolved';}).length;
+  var obsBadge = document.getElementById('nb-obs-ct');
+  if(obsBadge) { if(openObs > 0){obsBadge.textContent = openObs; obsBadge.style.display = '';} else {obsBadge.style.display = 'none';} }
   updateObsStats(); renderObs();
 }
 
 async function initSR() {
   try { await loadSRDATA(); } catch(e) { console.error('SyncRules load failed:', e); }
+  var activeRules = SR_RULES.filter(function(r){return r.status==='active';}).length;
+  var rulesBadge = document.getElementById('nb-rules-ct');
+  if(rulesBadge && activeRules > 0) { rulesBadge.textContent = activeRules; rulesBadge.style.display = ''; }
   renderSR();
 }
 
@@ -3393,10 +3436,9 @@ function copyText(txt) {
 window.addEventListener('load',()=>{
   document.getElementById('fy-overlay').style.display='flex';
 });
-</script>
-</div>
 
-<script>
+
+
 (function(){
   const WHITELIST_DOMAIN = '@cars24.com';
   const DEFAULT_ADMIN = 'vivek.naiwal@cars24.com';
