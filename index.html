@@ -701,7 +701,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
       <div class="d-sub">Here's what's happening in FY 2025-26</div>
     </div>
     <div class="d-actions">
-      <button class="tb-btn primary" onclick="alert('Running sync…')">
+      <button class="tb-btn primary" onclick="showSyncInfo()">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Run sync
       </button>
@@ -796,7 +796,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
           <div class="hrow"><div class="hdot a"></div><span class="htext">Darwinbox cookie</span><span class="hval" style="color:var(--amber)">8 days left</span></div>
           <div class="hrow"><div class="hdot r"></div><span class="htext">Last sync</span><span class="hval" style="color:var(--red)">Error · 14:23</span></div>
           <div class="hrow" style="border-bottom:none"><div class="hdot g"></div><span class="htext">Sheet database</span><span class="hval">Connected</span></div>
-          <div style="margin-top:10px"><button class="tb-btn" style="width:100%;justify-content:center;font-size:12px" onclick="alert('Running sync…')"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Run sync now</button></div>
+          <div style="margin-top:10px"><button class="tb-btn" style="width:100%;justify-content:center;font-size:12px" onclick="showSyncInfo()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Run sync now</button></div>
         </div>
       </div>
       <div class="card">
@@ -827,7 +827,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
     <div><div class="pg-hd-title">Reports</div><div class="pg-hd-sub" id="r-count-txt">Loading…</div></div>
     <div style="display:flex;gap:7px">
       <button class="tb-btn" onclick="nav('upload',document.getElementById('nb-upload'))"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8.5V2M3.5 4.5L6 2l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5 10h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Upload</button>
-      <button class="tb-btn primary" onclick="alert('Running sync…')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Run sync</button>
+      <button class="tb-btn primary" onclick="showSyncInfo()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Run sync</button>
     </div>
   </div>
   <div class="r-alert" id="r-sync-err">
@@ -1223,7 +1223,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 8.5V2M3.5 6l2.5 2.5L9 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1.5 10h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Export CSV
       </button>
-      <button class="tb-btn primary" onclick="alert('Running all rules…')" style="font-size:12px">
+      <button class="tb-btn primary" onclick="showSyncInfo()" style="font-size:12px">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Run sync now
       </button>
@@ -3519,6 +3519,32 @@ window.addEventListener('load',()=>{
     if (em) setTimeout(() => em.focus(), 250);
   });
 })();
+
+// ── SYNC INFO (GitHub Pages version — sync runs via Apps Script trigger) ──
+function showSyncInfo() {
+  var msg = 'Sync runs automatically every hour via Apps Script.\n\n' +
+    'To run immediately:\n' +
+    '1. Open script.google.com\n' +
+    '2. Open HR_Audit_Portal project\n' +
+    '3. Select RUN_SYNC_MANUALLY → Run\n\n' +
+    'Check Sync Log for latest status.';
+  alert(msg);
+}
+
+
+// ── CONFIG CHECK ──
+window.addEventListener('DOMContentLoaded', function() {
+  if (SUPABASE_URL === 'PASTE_YOUR_SUPABASE_URL_HERE' || SUPABASE_KEY === 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE') {
+    // Show configuration warning
+    document.body.insertAdjacentHTML('afterbegin', 
+      '<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#C0002A;color:#fff;padding:10px 20px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px">' +
+      '⚠ Portal not configured: Open index.html, find SUPABASE_URL and SUPABASE_KEY and replace with your actual Supabase credentials.' +
+      '</div>'
+    );
+    document.body.style.paddingTop = '40px';
+  }
+});
+
 </script>
 
 </body>
