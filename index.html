@@ -1,4 +1,6 @@
 <div id="notif-list"></div><!DOCTYPE html>
+<!-- ZeroLag v2.1 - built 25-Mar-2026 02:22 -->
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -679,7 +681,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
       </div>
       <div class="notif-panel" id="notif-panel">
         <div class="np-head"><span class="np-title">Notifications</span><span class="np-clear" onclick="clearNotifs()">Mark all read</span></div>
-        <div class="ni"><div class="ni-dot" style="background:#FF4444"></div><div><div class="ni-txt"><span class="ni-bold">Sync error</span> — Employee Master failed at 14:23</div><div class="ni-time">10 min ago</div></div></div>
+        <div class="ni"><div class="ni-dot" style="background:#FF4444"></div><div><div class="ni-txt"><span class="ni-bold">No new notifications</span></div><div class="ni-time">10 min ago</div></div></div>
         <div class="ni"><div class="ni-dot" style="background:#F5A623"></div><div><div class="ni-txt"><span class="ni-bold">Cookie expiring</span> — Darwinbox session expires in 8 days</div><div class="ni-time">2 hours ago</div></div></div>
         <div class="ni"><div class="ni-dot" style="background:var(--brand)"></div><div><div class="ni-txt"><span class="ni-bold">New observation</span> — Leave policy gap raised</div><div class="ni-time">Yesterday</div></div></div>
         <div class="ni"><div class="ni-dot" style="background:var(--green)"></div><div><div class="ni-txt"><span class="ni-bold">Approval captured</span> — from Gaurav Saxena</div><div class="ni-time">Yesterday</div></div></div>
@@ -752,7 +754,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
           <div><div class="card-title">Recent activity</div><div class="card-sub">Last 5 events</div></div>
           <button class="tb-btn" style="font-size:11px;padding:4px 9px" onclick="nav('auditlog',document.getElementById('nb-auditlog'))">View all</button>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="dash-activity-feed">
           <div class="act-item"><div class="act-icon" style="background:var(--green-dim)">📊</div><div style="flex:1;min-width:0"><div class="act-title">AssetReport_2026-03-23_170330.csv synced</div><div class="act-meta">Asset Reports · 98 KB · Auto sync</div></div><div class="act-time">17:08</div></div>
           <div class="act-item"><div class="act-icon" style="background:var(--green-dim)">✉️</div><div style="flex:1;min-width:0"><div class="act-title">Approval captured — Gaurav Saxena</div><div class="act-meta">Leave exception · 2 attachments</div></div><div class="act-time">14:22</div></div>
           <div class="act-item"><div class="act-icon" style="background:var(--brand-dim)">🔍</div><div style="flex:1;min-width:0"><div class="act-title">Observation raised — Leave policy gap</div><div class="act-meta">Critical · Awaiting response</div></div><div class="act-time">12:05</div></div>
@@ -794,7 +796,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
           <div class="hrow"><div class="hdot g"></div><span class="htext">Gmail connection</span><span class="hval">hraudit@cars24.com</span></div>
           <div class="hrow"><div class="hdot g"></div><span class="htext">Drive storage</span><span class="hval">117 KB / 5 GB</span></div>
           <div class="hrow"><div class="hdot a"></div><span class="htext">Darwinbox cookie</span><span class="hval" style="color:var(--amber)">8 days left</span></div>
-          <div class="hrow"><div class="hdot r"></div><span class="htext">Last sync</span><span class="hval" style="color:var(--red)">Error · 14:23</span></div>
+          <div class="hrow" id="dash-last-sync-row"><div class="hdot" id="dash-sync-dot"></div><span class="htext">Last sync</span><span class="hval" id="dash-last-sync-val">Loading…</span></div>
           <div class="hrow" style="border-bottom:none"><div class="hdot g"></div><span class="htext">Sheet database</span><span class="hval">Connected</span></div>
           <div style="margin-top:10px"><button class="tb-btn" style="width:100%;justify-content:center;font-size:12px" onclick="showSyncInfo()"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Run sync now</button></div>
         </div>
@@ -830,9 +832,9 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
       <button class="tb-btn primary" onclick="showSyncInfo()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 1 1 6 2M6 2l2-2M6 2l2 2" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Run sync</button>
     </div>
   </div>
-  <div class="r-alert" id="r-sync-err">
+  <div class="r-alert" id="r-sync-err" style="display:none">
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 4v3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9.5" r="0.65" fill="currentColor"/></svg>
-    <span><strong>Sync error:</strong> Employee Master failed at 14:23. Last successful sync was 2 days ago.</span>
+    <span id="r-sync-err-txt"><strong>Sync error:</strong> checking…</span>
     <button class="tb-btn" style="font-size:11px;padding:3px 8px;background:none;color:var(--red);border-color:rgba(192,0,42,0.25)" onclick="nav('synclog',document.getElementById('nb-synclog'))">View log →</button>
     <button onclick="this.closest('.r-alert').style.display='none'" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;line-height:1;opacity:0.6">×</button>
   </div>
@@ -1231,9 +1233,9 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--f);
   </div>
 
   <!-- Alert banner — shown if any error in last 24h -->
-  <div class="r-alert" id="sl-err-banner">
+  <div style="display:none" class="r-alert" id="sl-err-banner">
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 4v3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9.5" r="0.65" fill="currentColor"/></svg>
-    <span id="sl-err-txt"><strong>1 sync error</strong> in the last 24 hours — Employee Master failed at 14:23 today</span>
+    <span id="sl-err-txt"><strong>Sync status</strong> — checking from Supabase…</span>
     <button class="tb-btn" style="font-size:11px;padding:3px 8px;color:var(--red);border-color:rgba(192,0,42,0.25)" onclick="filterSLStatus('error')">Show errors only →</button>
     <button onclick="document.getElementById('sl-err-banner').style.display='none'" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;line-height:1;opacity:0.6">×</button>
   </div>
@@ -2127,18 +2129,32 @@ async function initDash() {
       var alertBar = document.querySelector('.alert-bar');
       if (alertBar) alertBar.style.display = 'flex';
     }
-    // Recent activity feed
-    if (auditEvents && auditEvents.length) {
-      var feed = document.getElementById('dash-activity-feed');
-      if (feed) {
-        var icos = {login:'🔐',download:'⬇️',upload:'📎',sync:'🔄',observation:'🔍',settings:'⚙️',user:'👥'};
-        feed.innerHTML = auditEvents.map(function(e) {
-          return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(71,54,254,0.05)">' +
-            '<div style="font-size:16px;width:28px;text-align:center">' + (icos[e.type]||'📋') + '</div>' +
-            '<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--t1)">' + e.action + '</div>' +
-            '<div style="font-size:11px;color:var(--t3);font-family:var(--fm)">' + (e.user_name||e.user_email) + ' · ' + new Date(e.created_at).toLocaleString('en-IN') + '</div></div></div>';
+    // Recent activity feed — replace hardcoded mock items with live data
+    var feed = document.getElementById('dash-activity-feed');
+    if (feed) {
+      var icos = {login:'🔐',download:'⬇️',upload:'📎',sync:'🔄',observation:'🔍',settings:'⚙️',user:'👥',approval:'✉️'};
+      var actBg = {login:'var(--green-dim)',sync:'var(--brand-dim)',upload:'var(--brand-dim)',download:'rgba(0,150,200,0.08)',observation:'var(--amber-dim)',user:'var(--brand-dim)'};
+      if (auditEvents && auditEvents.length) {
+        feed.innerHTML = auditEvents.slice(0,5).map(function(e) {
+          return '<div class="act-item"><div class="act-icon" style="background:'+(actBg[e.type]||'var(--bg3)')+'">'+( icos[e.type]||'📋')+'</div>' +
+            '<div style="flex:1;min-width:0"><div class="act-title">' + e.action + '</div>' +
+            '<div class="act-meta">' + (e.user_name||e.user_email||'System') + ' · ' + e.detail + '</div></div>' +
+            '<div class="act-time">' + new Date(e.created_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) + '</div></div>';
         }).join('');
+      } else {
+        feed.innerHTML = '<div style="text-align:center;padding:24px;color:var(--t3);font-size:12px">No activity yet</div>';
       }
+    }
+    // Update last sync row
+    var lastSyncFromLog = log && log.length ? log[0] : null;
+    var syncDot = document.getElementById('dash-sync-dot');
+    var syncVal = document.getElementById('dash-last-sync-val');
+    if (lastSyncFromLog) {
+      if(syncDot) { syncDot.className = 'hdot g'; }
+      if(syncVal) { syncVal.style.color = ''; syncVal.textContent = new Date(lastSyncFromLog.synced_at).toLocaleString('en-IN'); }
+    } else {
+      if(syncDot) { syncDot.className = 'hdot a'; }
+      if(syncVal) { syncVal.textContent = 'No syncs yet'; }
     }
   } catch(e) { console.error('Dashboard load failed:', e); }
 }
