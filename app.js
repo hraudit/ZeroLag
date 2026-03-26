@@ -3,7 +3,7 @@
 //  Talks to Apps Script API via fetch (JSONP for cross-origin)
 // ============================================================
 
-const API_URL = 'https://script.google.com/a/macros/cars24.com/s/AKfycbwm2pTwfpco6uCwli5DIrGAmJlJfBuUJHOtJzx8_CSk4OAtiCzDlWv7RXwnxHxTfF1L0w/exec';
+const API_URL = 'https://script.google.com/a/macros/cars24.com/s/AKfycbwxP4rm4NEFpazXIrWyj8FQ6AtuQ-so7dzRvPEtZf5vjIW3Is6C5y3qtwRXtrKtVyz4/exec';
 
 // ── API CALLER ───────────────────────────────────────────────
 function api(action, params) {
