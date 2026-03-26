@@ -144,27 +144,34 @@ function selFY(el_,fy) {
   selFYVal = fy;
 }
 function showFY() {
-  el('fy-overlay').style.display = 'flex';
+  const fyo = el('fy-overlay');
+  if(fyo) fyo.style.display = 'flex';
 }
 function confirmFY() {
   FY = selFYVal;
   const d = FY.replace('FY','FY ');
-  el('fy-display').textContent = d;
-  el('tb-sub').textContent = d;
-  el('fy-overlay').style.display = 'none';
-  el('portal-shell').style.display = '';
-  nav('dashboard', el('nb-dashboard'));
+  // Show portal shell FIRST before calling nav
+  const shell = el('portal-shell');
+  if(shell) shell.style.display = '';
+  const fyo = el('fy-overlay');
+  if(fyo) fyo.style.display = 'none';
+  const fyd = el('fy-display');
+  if(fyd) fyd.textContent = d;
+  // Small delay to ensure DOM is visible before nav
+  setTimeout(function() {
+    nav('dashboard', el('nb-dashboard'));
+  }, 50);
 }
 
 // ── NAVIGATION ───────────────────────────────────────────────
 function nav(id, navEl) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  el('pg-'+id).classList.add('on');
+  const pg = el('pg-'+id); if(pg) pg.classList.add('on');
   document.querySelectorAll('.nb').forEach(n=>n.classList.remove('on'));
   if (navEl) navEl.classList.add('on');
   CUR_PAGE = id;
-  el('tb-title').textContent = TITLES[id]||id;
-  el('tb-sub').textContent = FY;
+  const tbt = el('tb-title'); if(tbt) tbt.innerHTML = (TITLES[id]||id) + ' <span id="tb-sub" style="font-size:12px;color:var(--t3);font-weight:400;margin-left:6px">' + FY + '</span>';
+  const tbs = el('tb-sub'); if(tbs) tbs.textContent = FY;
 
   if (id==='dashboard')   loadDash();
   if (id==='reports')     loadReports();
